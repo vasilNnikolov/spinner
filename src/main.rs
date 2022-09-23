@@ -1,6 +1,7 @@
 use constants::*;
 use math::*;
 use scene::*;
+use std::sync::mpsc;
 use std::{thread, time};
 
 mod constants {
@@ -166,6 +167,7 @@ mod scene {
         }
     }
 
+    #[derive(Clone, Copy)]
     pub struct Camera {
         /// the matrix which defines how the camera is facing
         /// x is width to the right, y is the direction the camera is facing, z is height up
@@ -294,6 +296,22 @@ mod scene {
     }
 }
 
+fn modify_camera(camera: &mut Camera, start_time: &time::Instant) {
+    let time_ms = time::Instant::now().duration_since(*start_time).as_millis() as f32;
+
+    let phase = time_ms / 3000.0;
+    camera.position = Vec3 {
+        components: [
+            5.0 * phase.sin(),
+            5.0 * phase.cos(),
+            1.0 * (0.6 * phase).cos(),
+        ],
+    } + 3.5 * UNIT_Z;
+    camera.matrix.mat[1] = (1.25 * UNIT_Z - camera.position).normalise();
+    camera.matrix.mat[0] = cross(&camera.matrix.mat[1], &UNIT_Z).normalise();
+    camera.matrix.mat[2] = cross(&camera.matrix.mat[0], &camera.matrix.mat[1]);
+}
+
 fn main() {
     let mut camera = Camera {
         matrix: Mat3 {
@@ -312,29 +330,46 @@ fn main() {
     }
 
     let program_start = time::Instant::now();
+    let (tx, rx) = mpsc::channel::<Vec<(char, i32, i32)>>();
+    let mut tx_handles = Vec::new();
+    let n_threads = 10;
+    for _ in 0..n_threads {
+        let new_tx = tx.clone();
+        tx_handles.push(new_tx);
+    }
     loop {
         print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
         // move camera
-        let time_ms = time::Instant::now()
-            .duration_since(program_start)
-            .as_millis() as f32;
+        modify_camera(&mut camera, &program_start);
 
-        let phase = time_ms / 3000.0;
-        camera.position = Vec3 {
-            components: [
-                5.0 * phase.sin(),
-                5.0 * phase.cos(),
-                1.0 * (0.6 * phase).cos(),
-            ],
-        } + 3.5 * UNIT_Z;
-        camera.matrix.mat[1] = (1.25 * UNIT_Z - camera.position).normalise();
-        camera.matrix.mat[0] = cross(&camera.matrix.mat[1], &UNIT_Z).normalise();
-        camera.matrix.mat[2] = cross(&camera.matrix.mat[0], &camera.matrix.mat[1]);
+        let mut i = 0;
         for row in 1..HEIGHT - 1 {
-            for col in 1..WIDTH - 1 {
-                let camera_ray = camera.get_ray_from_camera(row, col);
-                let char_to_place = camera.compute_light_intensity(&camera_ray);
-                screen_buffer[row as usize][col as usize] = char_to_place;
+            let local_cam = camera.clone();
+            let handle = tx_handles[i].clone();
+            thread::spawn(move || {
+                let mut res_to_send: Vec<(char, i32, i32)> = Vec::new();
+                for col in 1..WIDTH - 1 {
+                    let cam_ray = local_cam.get_ray_from_camera(row, col);
+                    let char_to_place = local_cam.compute_light_intensity(&cam_ray);
+                    res_to_send.push((char_to_place, row, col));
+                }
+                handle.send(res_to_send).unwrap();
+            });
+            i += 1;
+            i = i % n_threads;
+        }
+        for _ in 0..HEIGHT - 2 {
+            let c = rx.recv();
+            match c {
+                Ok(v) => {
+                    for (c, row, col) in v {
+                        screen_buffer[row as usize][col as usize] = c;
+                    }
+                }
+                Err(_) => {
+                    println!("error with threads");
+                    return;
+                }
             }
         }
         for row in screen_buffer {
