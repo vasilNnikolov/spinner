@@ -6,10 +6,10 @@ use std::{thread, time};
 
 mod constants {
     use crate::math::Vec3;
-    pub const FOV: f32 = 1.0; // horizontal field of view in radians
+    pub const FOV: f32 = 0.4; // horizontal field of view in radians
     pub const H_W_RATIO: f32 = 2.0;
-    pub const HEIGHT: i32 = 70;
-    pub const WIDTH: i32 = 140;
+    pub const HEIGHT: i32 = 90;
+    pub const WIDTH: i32 = 100;
     pub const UNIT_X: Vec3 = Vec3 {
         components: [1.0, 0.0, 0.0],
     };
@@ -149,8 +149,8 @@ mod math {
 mod scene {
     use crate::constants::*;
     use crate::math::*;
-    const MAX_DISTANCE: f32 = 10.0;
-    const MIN_DISTANCE: f32 = 0.001;
+    const MAX_DISTANCE: f32 = 7.0;
+    const MIN_DISTANCE: f32 = 0.01;
 
     fn min(f1: f32, f2: f32) -> f32 {
         if f1 > f2 {
@@ -223,7 +223,7 @@ mod scene {
         }
 
         pub fn compute_light_intensity(&self, direction: &Vec3) -> char {
-            let ascii_table: Vec<char> = ":;+*@%$#@".chars().collect();
+            let ascii_table: Vec<char> = ",:;+*@%$#@".chars().collect();
             let n_chars = ascii_table.len();
             match self.compute_intersection(direction) {
                 Some(normal_vec) => {
@@ -299,14 +299,14 @@ mod scene {
 fn modify_camera(camera: &mut Camera, start_time: &time::Instant) {
     let time_ms = time::Instant::now().duration_since(*start_time).as_millis() as f32;
 
-    let phase = time_ms / 3000.0;
+    let phase = time_ms / 1500.0;
     camera.position = Vec3 {
         components: [
             5.0 * phase.sin(),
             5.0 * phase.cos(),
             1.0 * (0.6 * phase).cos(),
         ],
-    } + 3.5 * UNIT_Z;
+    } + 3.6 * UNIT_Z;
     camera.matrix.mat[1] = (1.25 * UNIT_Z - camera.position).normalise();
     camera.matrix.mat[0] = cross(&camera.matrix.mat[1], &UNIT_Z).normalise();
     camera.matrix.mat[2] = cross(&camera.matrix.mat[0], &camera.matrix.mat[1]);
@@ -332,12 +332,13 @@ fn main() {
     let program_start = time::Instant::now();
     let (tx, rx) = mpsc::channel::<Vec<(char, i32, i32)>>();
     let mut tx_handles = Vec::new();
-    let n_threads = 10;
+    let n_threads = 4;
     for _ in 0..n_threads {
         let new_tx = tx.clone();
         tx_handles.push(new_tx);
     }
     loop {
+        let s_time = time::Instant::now();
         print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
         // move camera
         modify_camera(&mut camera, &program_start);
@@ -358,6 +359,7 @@ fn main() {
             i += 1;
             i = i % n_threads;
         }
+        let render_time = time::Instant::now();
         for _ in 0..HEIGHT - 2 {
             let c = rx.recv();
             match c {
@@ -375,5 +377,10 @@ fn main() {
         for row in screen_buffer {
             println!("{}", row.iter().collect::<String>());
         }
+        println!(
+            "RENDER TIME {} ms \n RECIEVE & DRAW TIME {} ms",
+            render_time.duration_since(s_time).as_millis(),
+            time::Instant::now().duration_since(render_time).as_millis()
+        );
     }
 }
