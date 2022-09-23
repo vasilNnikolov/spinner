@@ -7,8 +7,8 @@ mod constants {
     use crate::math::Vec3;
     pub const FOV: f32 = 1.0; // horizontal field of view in radians
     pub const H_W_RATIO: f32 = 2.0;
-    pub const HEIGHT: i32 = 40;
-    pub const WIDTH: i32 = 80;
+    pub const HEIGHT: i32 = 90;
+    pub const WIDTH: i32 = 180;
     pub const UNIT_X: Vec3 = Vec3 {
         components: [1.0, 0.0, 0.0],
     };
@@ -25,6 +25,16 @@ mod math {
     #[derive(Copy, Clone)]
     pub struct Vec3 {
         pub components: [f32; 3],
+    }
+
+    pub fn cross(a: &Vec3, b: &Vec3) -> Vec3 {
+        Vec3 {
+            components: [
+                a.components[1] * b.components[2] - a.components[2] * b.components[1],
+                a.components[2] * b.components[0] - a.components[0] * b.components[2],
+                a.components[0] * b.components[1] - a.components[1] * b.components[0],
+            ],
+        }
     }
 
     impl Vec3 {
@@ -285,7 +295,7 @@ mod scene {
 }
 
 fn main() {
-    let camera = Camera {
+    let mut camera = Camera {
         matrix: Mat3 {
             mat: [UNIT_X, UNIT_Y, UNIT_Z],
         },
@@ -302,9 +312,25 @@ fn main() {
     }
 
     println!("Monke");
+    let program_start = time::Instant::now();
     loop {
         print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+        // move camera
+        let time_ms = time::Instant::now()
+            .duration_since(program_start)
+            .as_millis() as f32;
 
+        let phase = time_ms / 3000.0;
+        camera.position = Vec3 {
+            components: [
+                5.0 * phase.sin(),
+                5.0 * phase.cos(),
+                0.0 * (0.6 * phase).cos(),
+            ],
+        } + 1.25 * UNIT_Z;
+        camera.matrix.mat[1] = (1.25 * UNIT_Z - camera.position).normalise();
+        camera.matrix.mat[0] = cross(&camera.matrix.mat[1], &UNIT_Z).normalise();
+        camera.matrix.mat[2] = cross(&camera.matrix.mat[0], &camera.matrix.mat[1]);
         for row in 1..HEIGHT - 1 {
             for col in 1..WIDTH - 1 {
                 let camera_ray = camera.get_ray_from_camera(row, col);
