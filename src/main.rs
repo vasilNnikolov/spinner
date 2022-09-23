@@ -7,8 +7,8 @@ mod constants {
     use crate::math::Vec3;
     pub const FOV: f32 = 1.0; // horizontal field of view in radians
     pub const H_W_RATIO: f32 = 2.0;
-    pub const HEIGHT: i32 = 30;
-    pub const WIDTH: i32 = 80;
+    pub const HEIGHT: i32 = 90;
+    pub const WIDTH: i32 = 180;
     pub const UNIT_X: Vec3 = Vec3 {
         components: [1.0, 0.0, 0.0],
     };
@@ -38,6 +38,9 @@ mod math {
                 .map(|i| self.components[i].powi(2))
                 .sum::<f32>()
                 .sqrt()
+        }
+        pub fn normalise(&self) -> Vec3 {
+            1.0 / self.norm() * (*self)
         }
     }
 
@@ -151,30 +154,61 @@ mod scene {
                 - FOV / WIDTH as f32 * H_W_RATIO * ((y - HEIGHT / 2) as f32) * UNIT_Z
                 + FOV / WIDTH as f32 * ((x - WIDTH / 2) as f32) * UNIT_X;
 
-            self.matrix * ray_camera_rf
+            (self.matrix * ray_camera_rf).normalise()
         }
-        /// computes the normal to the surface which intersects the direction vector, or
+        /// computes the normal vector to the surface which intersects the direction vector, or
         /// returns none if no intersection
+        /// direction should be normalised
         fn compute_intersection(&self, direction: &Vec3) -> Option<Vec3> {
             let mut ray_front = self.position;
-            let norm_dir = (*direction) * (1.0 / direction.norm());
             loop {
                 let distance = signed_distance_function(&ray_front);
                 if distance > MAX_DISTANCE {
                     return None;
                 } else if distance < MIN_DISTANCE {
                     // compute normal to surface
-                    // TODO
-                    return Some(UNIT_X);
+                    let dx = Vec3 {
+                        components: [MIN_DISTANCE, 0.0, 0.0],
+                    };
+                    let dy = Vec3 {
+                        components: [0.0, MIN_DISTANCE, 0.0],
+                    };
+                    let dz = Vec3 {
+                        components: [0.0, 0.0, MIN_DISTANCE],
+                    };
+                    return Some(
+                        Vec3 {
+                            components: [
+                                (signed_distance_function(&(ray_front + dx)) - distance)
+                                    / MIN_DISTANCE,
+                                (signed_distance_function(&(ray_front + dy)) - distance)
+                                    / MIN_DISTANCE,
+                                (signed_distance_function(&(ray_front + dz)) - distance)
+                                    / MIN_DISTANCE,
+                            ],
+                        }
+                        .normalise(),
+                    );
                 } else {
-                    ray_front = ray_front + norm_dir * distance;
+                    ray_front = ray_front + *direction * distance;
                 }
             }
         }
 
         pub fn compute_light_intensity(&self, direction: &Vec3) -> char {
+            let ascii_table: Vec<char> = ".,:;+*@%$#@".chars().collect();
+            let n_chars = ascii_table.len();
             match self.compute_intersection(direction) {
-                Some(_) => '#',
+                Some(normal_vec) => {
+                    let intensity = normal_vec * (Vec3::zero_vec() - *direction).normalise();
+                    let index = intensity * (n_chars as f32);
+                    if index < 0.0 {
+                        return ' ';
+                    } else if index > n_chars as f32 - 1.0 {
+                        return ascii_table[n_chars - 1];
+                    }
+                    return ascii_table[index as usize];
+                }
                 None => ' ',
             }
         }
@@ -197,12 +231,21 @@ fn main() {
         position: -1.0 * UNIT_Y,
     };
     let mut screen_buffer = [[' '; WIDTH as usize]; HEIGHT as usize];
+    for i in 0..WIDTH as usize {
+        screen_buffer[0][i] = '-';
+        screen_buffer[(HEIGHT - 1) as usize][i] = '-';
+    }
+    for i in 0..HEIGHT as usize {
+        screen_buffer[i][0] = '|';
+        screen_buffer[i][(WIDTH - 1) as usize] = '|';
+    }
+
+    println!("Monke");
     loop {
-        // clears screen
         print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
 
-        for row in 0..HEIGHT {
-            for col in 0..WIDTH {
+        for row in 1..HEIGHT - 1 {
+            for col in 1..WIDTH - 1 {
                 let camera_ray = camera.get_ray_from_camera(row, col);
                 let char_to_place = camera.compute_light_intensity(&camera_ray);
                 screen_buffer[row as usize][col as usize] = char_to_place;
