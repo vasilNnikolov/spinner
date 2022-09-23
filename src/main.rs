@@ -7,8 +7,8 @@ mod constants {
     use crate::math::Vec3;
     pub const FOV: f32 = 1.0; // horizontal field of view in radians
     pub const H_W_RATIO: f32 = 2.0;
-    pub const HEIGHT: i32 = 90;
-    pub const WIDTH: i32 = 180;
+    pub const HEIGHT: i32 = 40;
+    pub const WIDTH: i32 = 80;
     pub const UNIT_X: Vec3 = Vec3 {
         components: [1.0, 0.0, 0.0],
     };
@@ -141,6 +141,21 @@ mod scene {
     const MAX_DISTANCE: f32 = 10.0;
     const MIN_DISTANCE: f32 = 0.001;
 
+    fn min(f1: f32, f2: f32) -> f32 {
+        if f1 > f2 {
+            f2
+        } else {
+            f1
+        }
+    }
+    fn max(f1: f32, f2: f32) -> f32 {
+        if f1 > f2 {
+            f1
+        } else {
+            f2
+        }
+    }
+
     pub struct Camera {
         /// the matrix which defines how the camera is facing
         /// x is width to the right, y is the direction the camera is facing, z is height up
@@ -215,7 +230,53 @@ mod scene {
     }
 
     fn signed_distance_function(position: &Vec3) -> f32 {
-        sphere(position, &Vec3::zero_vec(), 0.2)
+        min(min(balls(position), shaft(position)), head(position))
+    }
+
+    fn balls(position: &Vec3) -> f32 {
+        let left_center = Vec3 {
+            components: [-0.3, 0.0, 0.0],
+        };
+        let right_center = Vec3 {
+            components: [0.3, 0.0, 0.0],
+        };
+        return min(
+            sphere(position, &left_center, 0.5),
+            sphere(position, &right_center, 0.5),
+        );
+    }
+
+    fn shaft(position: &Vec3) -> f32 {
+        let lower_plane = plane(position, &Vec3::zero_vec(), &(-1.0 * UNIT_Z));
+        let upper_plane = plane(
+            position,
+            &Vec3 {
+                components: [0.0, 0.0, 2.5],
+            },
+            &UNIT_Z,
+        );
+        let r_relative = *position
+            - Vec3 {
+                components: [0.0, 0.2, 0.0],
+            };
+
+        let cylinder = (r_relative - (r_relative * UNIT_Z) * UNIT_Z).norm() - 0.4;
+
+        max(max(lower_plane, upper_plane), cylinder)
+    }
+
+    fn head(position: &Vec3) -> f32 {
+        let head_center = Vec3 {
+            components: [0.0, 0.2, 2.5],
+        };
+        max(
+            sphere(position, &head_center, 0.5),
+            plane(position, &head_center, &(-1.0 * UNIT_Z)),
+        )
+    }
+
+    fn plane(position: &Vec3, r0: &Vec3, normal: &Vec3) -> f32 {
+        (*position - *r0) * *normal
     }
 
     fn sphere(position: &Vec3, sphere_center: &Vec3, sphere_radius: f32) -> f32 {
@@ -228,7 +289,7 @@ fn main() {
         matrix: Mat3 {
             mat: [UNIT_X, UNIT_Y, UNIT_Z],
         },
-        position: -1.0 * UNIT_Y,
+        position: -5.0 * UNIT_Y + 1.5 * UNIT_Z,
     };
     let mut screen_buffer = [[' '; WIDTH as usize]; HEIGHT as usize];
     for i in 0..WIDTH as usize {
