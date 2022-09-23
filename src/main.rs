@@ -7,8 +7,8 @@ mod constants {
     use crate::math::Vec3;
     pub const FOV: f32 = 1.0; // horizontal field of view in radians
     pub const H_W_RATIO: f32 = 2.0;
-    pub const HEIGHT: i32 = 90;
-    pub const WIDTH: i32 = 180;
+    pub const HEIGHT: i32 = 70;
+    pub const WIDTH: i32 = 140;
     pub const UNIT_X: Vec3 = Vec3 {
         components: [1.0, 0.0, 0.0],
     };
@@ -221,12 +221,12 @@ mod scene {
         }
 
         pub fn compute_light_intensity(&self, direction: &Vec3) -> char {
-            let ascii_table: Vec<char> = ".,:;+*@%$#@".chars().collect();
+            let ascii_table: Vec<char> = ":;+*@%$#@".chars().collect();
             let n_chars = ascii_table.len();
             match self.compute_intersection(direction) {
                 Some(normal_vec) => {
                     let intensity = normal_vec * (Vec3::zero_vec() - *direction).normalise();
-                    let index = intensity * (n_chars as f32);
+                    let index = intensity * intensity * (n_chars as f32);
                     if index < 0.0 {
                         return ' ';
                     } else if index > n_chars as f32 - 1.0 {
@@ -311,7 +311,6 @@ fn main() {
         screen_buffer[i][(WIDTH - 1) as usize] = '|';
     }
 
-    println!("Monke");
     let program_start = time::Instant::now();
     loop {
         print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
@@ -325,9 +324,9 @@ fn main() {
             components: [
                 5.0 * phase.sin(),
                 5.0 * phase.cos(),
-                0.0 * (0.6 * phase).cos(),
+                1.0 * (0.6 * phase).cos(),
             ],
-        } + 1.25 * UNIT_Z;
+        } + 3.5 * UNIT_Z;
         camera.matrix.mat[1] = (1.25 * UNIT_Z - camera.position).normalise();
         camera.matrix.mat[0] = cross(&camera.matrix.mat[1], &UNIT_Z).normalise();
         camera.matrix.mat[2] = cross(&camera.matrix.mat[0], &camera.matrix.mat[1]);
@@ -341,6 +340,5 @@ fn main() {
         for row in screen_buffer {
             println!("{}", row.iter().collect::<String>());
         }
-        thread::sleep(time::Duration::from_millis(30));
     }
 }
