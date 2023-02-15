@@ -152,21 +152,30 @@ mod scene {
     const MAX_DISTANCE: f32 = 7.0;
     const MIN_DISTANCE: f32 = 0.003;
 
-    fn min(f1: f32, f2: f32) -> f32 {
-        let dr = -0.02;
-        if f1 > f2 {
-            f2 + dr
-        } else {
-            f1 + dr
-        }
+    macro_rules! min {
+        ($x:expr) => ($x);
+        ($x:expr, $($y:expr),+) => {{
+            let a = min!($($y),+);
+            if a < $x {
+                a
+            } else {
+                $x
+            }
+        }};
     }
-    fn max(f1: f32, f2: f32) -> f32 {
-        if f1 > f2 {
-            f1
-        } else {
-            f2
-        }
+
+    macro_rules! max {
+        ($x:expr) => ($x);
+        ($x:expr, $($y:expr),+) => {{
+            let a = min!($($y),+);
+            if a < $x {
+                a
+            } else {
+                $x
+            }
+        }};
     }
+    pub(crate) use {max, min};
 
     #[derive(Clone, Copy)]
     pub struct Camera {
@@ -243,7 +252,11 @@ mod scene {
     }
 
     fn signed_distance_function(position: &Vec3) -> f32 {
-        min(min(balls(position), shaft(position)), head(position))
+        min!(balls(position), shaft(position), head(position))
+    }
+
+    fn tennis_racket(position: &Vec3) -> f32 {
+        1.
     }
 
     fn balls(position: &Vec3) -> f32 {
@@ -253,9 +266,9 @@ mod scene {
         let right_center = Vec3 {
             components: [0.3, 0.0, 0.0],
         };
-        return min(
+        return min!(
             sphere(position, &left_center, 0.5),
-            sphere(position, &right_center, 0.5),
+            sphere(position, &right_center, 0.5)
         );
     }
 
@@ -275,16 +288,16 @@ mod scene {
 
         let cylinder = (r_relative - (r_relative * UNIT_Z) * UNIT_Z).norm() - 0.4;
 
-        max(max(lower_plane, upper_plane), cylinder)
+        max!(lower_plane, upper_plane, cylinder)
     }
 
     fn head(position: &Vec3) -> f32 {
         let head_center = Vec3 {
             components: [0.0, 0.2, 2.5],
         };
-        max(
+        max!(
             sphere(position, &head_center, 0.5),
-            plane(position, &head_center, &(-1.0 * UNIT_Z)),
+            plane(position, &head_center, &(-1.0 * UNIT_Z))
         )
     }
 
