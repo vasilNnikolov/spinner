@@ -150,13 +150,14 @@ mod scene {
     use crate::constants::*;
     use crate::math::*;
     const MAX_DISTANCE: f32 = 7.0;
-    const MIN_DISTANCE: f32 = 0.01;
+    const MIN_DISTANCE: f32 = 0.003;
 
     fn min(f1: f32, f2: f32) -> f32 {
+        let dr = -0.02;
         if f1 > f2 {
-            f2
+            f2 + dr
         } else {
-            f1
+            f1 + dr
         }
     }
     fn max(f1: f32, f2: f32) -> f32 {
@@ -304,7 +305,7 @@ fn modify_camera(camera: &mut Camera, start_time: &time::Instant) {
         components: [
             5.0 * phase.sin(),
             5.0 * phase.cos(),
-            1.0 * (0.6 * phase).cos(),
+            4.0 * (0.6 * phase).cos(),
         ],
     } + 3.6 * UNIT_Z;
     camera.matrix.mat[1] = (1.25 * UNIT_Z - camera.position).normalise();
