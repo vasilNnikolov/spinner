@@ -167,8 +167,8 @@ mod scene {
     macro_rules! max {
         ($x:expr) => ($x);
         ($x:expr, $($y:expr),+) => {{
-            let a = min!($($y),+);
-            if a < $x {
+            let a = max!($($y),+);
+            if a > $x {
                 a
             } else {
                 $x
@@ -253,10 +253,6 @@ mod scene {
 
     fn signed_distance_function(position: &Vec3) -> f32 {
         min!(balls(position), shaft(position), head(position))
-    }
-
-    fn tennis_racket(position: &Vec3) -> f32 {
-        1.
     }
 
     fn balls(position: &Vec3) -> f32 {
