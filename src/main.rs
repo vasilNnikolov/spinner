@@ -304,6 +304,10 @@ mod scene {
     fn sphere(position: &Vec3, sphere_center: &Vec3, sphere_radius: f32) -> f32 {
         (*position - *sphere_center).norm() - sphere_radius
     }
+
+    pub fn clear_screen() {
+        print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+    }
 }
 
 fn modify_camera(camera: &mut Camera, start_time: &time::Instant) {
@@ -349,7 +353,7 @@ fn main() {
     }
     loop {
         let s_time = time::Instant::now();
-        print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+        scene::clear_screen();
         // move camera
         modify_camera(&mut camera, &program_start);
 
