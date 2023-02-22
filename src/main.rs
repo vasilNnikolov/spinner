@@ -7,7 +7,7 @@ mod constants {
     use crate::math::Vec3;
     pub const FOV: f32 = 0.4; // horizontal field of view in radians
     pub const H_W_RATIO: f32 = 2.0;
-    pub const HEIGHT: i32 = 90;
+    pub const HEIGHT: i32 = 70;
     pub const WIDTH: i32 = 100;
     pub const UNIT_X: Vec3 = Vec3 {
         components: [1.0, 0.0, 0.0],
