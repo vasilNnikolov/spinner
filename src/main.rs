@@ -1,8 +1,7 @@
 use constants::*;
 use math::*;
 use scene::*;
-use std::sync::mpsc;
-use std::{thread, time};
+use std::time;
 
 mod constants {
     use crate::math::Vec3;
