@@ -344,57 +344,27 @@ fn main() {
     }
 
     let program_start = time::Instant::now();
-    let (tx, rx) = mpsc::channel::<Vec<(char, i32, i32)>>();
-    let mut tx_handles = Vec::new();
-    let n_threads = 4;
-    for _ in 0..n_threads {
-        let new_tx = tx.clone();
-        tx_handles.push(new_tx);
-    }
     loop {
         let s_time = time::Instant::now();
         scene::clear_screen();
         // move camera
         modify_camera(&mut camera, &program_start);
 
-        let mut i = 0;
         for row in 1..HEIGHT - 1 {
-            let local_cam = camera.clone();
-            let handle = tx_handles[i].clone();
-            thread::spawn(move || {
-                let mut res_to_send: Vec<(char, i32, i32)> = Vec::new();
-                for col in 1..WIDTH - 1 {
-                    let cam_ray = local_cam.get_ray_from_camera(row, col);
-                    let char_to_place = local_cam.compute_light_intensity(&cam_ray);
-                    res_to_send.push((char_to_place, row, col));
-                }
-                handle.send(res_to_send).unwrap();
-            });
-            i += 1;
-            i = i % n_threads;
-        }
-        let render_time = time::Instant::now();
-        for _ in 0..HEIGHT - 2 {
-            let c = rx.recv();
-            match c {
-                Ok(v) => {
-                    for (c, row, col) in v {
-                        screen_buffer[row as usize][col as usize] = c;
-                    }
-                }
-                Err(_) => {
-                    println!("error with threads");
-                    return;
-                }
+            for col in 1..WIDTH - 1 {
+                let cam_ray = camera.get_ray_from_camera(row, col);
+                let char_to_place = camera.compute_light_intensity(&cam_ray);
+
+                screen_buffer[row as usize][col as usize] = char_to_place;
             }
         }
+
         for row in screen_buffer {
             println!("{}", row.iter().collect::<String>());
         }
         println!(
-            "RENDER TIME {} ms \n RECIEVE & DRAW TIME {} ms",
-            render_time.duration_since(s_time).as_millis(),
-            time::Instant::now().duration_since(render_time).as_millis()
+            "Time per frame: {} ms",
+            time::Instant::now().duration_since(s_time).as_millis()
         );
     }
 }
