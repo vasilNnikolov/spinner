@@ -38,6 +38,7 @@ mod math {
             let a = Vector::from_vec(vec![1., 2., 3.]);
             let b = Vector::from_vec(vec![4., 2., 3.]);
             let x = &a + &b;
+
             // println!("{:?}", (&b.shape()).into_iter());
             let res = Vector::from_vec(vec![5., 4., 6.]);
             assert!(x == res);
@@ -232,45 +233,45 @@ mod scene {
 //     camera.matrix.mat[2] = cross(&camera.matrix.mat[0], &camera.matrix.mat[1]);
 // }
 
-// fn main() {
-//     let mut camera = Camera {
-//         matrix: Mat3 {
-//             mat: [UNIT_X, UNIT_Y, UNIT_Z],
-//         },
-//         position: -5.0 * UNIT_Y + 1.5 * UNIT_Z,
-//     };
-//     let mut screen_buffer = [[' '; WIDTH as usize]; HEIGHT as usize];
-//     for i in 0..WIDTH as usize {
-//         screen_buffer[0][i] = '-';
-//         screen_buffer[(HEIGHT - 1) as usize][i] = '-';
-//     }
-//     for i in 0..HEIGHT as usize {
-//         screen_buffer[i][0] = '|';
-//         screen_buffer[i][(WIDTH - 1) as usize] = '|';
-//     }
+fn main() {
+    //     let mut camera = Camera {
+    //         matrix: Mat3 {
+    //             mat: [UNIT_X, UNIT_Y, UNIT_Z],
+    //         },
+    //         position: -5.0 * UNIT_Y + 1.5 * UNIT_Z,
+    //     };
+    //     let mut screen_buffer = [[' '; WIDTH as usize]; HEIGHT as usize];
+    //     for i in 0..WIDTH as usize {
+    //         screen_buffer[0][i] = '-';
+    //         screen_buffer[(HEIGHT - 1) as usize][i] = '-';
+    //     }
+    //     for i in 0..HEIGHT as usize {
+    //         screen_buffer[i][0] = '|';
+    //         screen_buffer[i][(WIDTH - 1) as usize] = '|';
+    //     }
 
-//     let program_start = time::Instant::now();
-//     loop {
-//         let s_time = time::Instant::now();
-//         scene::clear_screen();
-//         // move camera
-//         modify_camera(&mut camera, &program_start);
+    //     let program_start = time::Instant::now();
+    //     loop {
+    //         let s_time = time::Instant::now();
+    //         scene::clear_screen();
+    //         // move camera
+    //         modify_camera(&mut camera, &program_start);
 
-//         for row in 1..HEIGHT - 1 {
-//             for col in 1..WIDTH - 1 {
-//                 let cam_ray = camera.get_ray_from_camera(row, col);
-//                 let char_to_place = camera.compute_light_intensity(&cam_ray);
+    //         for row in 1..HEIGHT - 1 {
+    //             for col in 1..WIDTH - 1 {
+    //                 let cam_ray = camera.get_ray_from_camera(row, col);
+    //                 let char_to_place = camera.compute_light_intensity(&cam_ray);
 
-//                 screen_buffer[row as usize][col as usize] = char_to_place;
-//             }
-//         }
+    //                 screen_buffer[row as usize][col as usize] = char_to_place;
+    //             }
+    //         }
 
-//         for row in screen_buffer {
-//             println!("{}", row.iter().collect::<String>());
-//         }
-//         println!(
-//             "Time per frame: {} ms",
-//             time::Instant::now().duration_since(s_time).as_millis()
-//         );
-//     }
-// }
+    //         for row in screen_buffer {
+    //             println!("{}", row.iter().collect::<String>());
+    //         }
+    //         println!(
+    //             "Time per frame: {} ms",
+    //             time::Instant::now().duration_since(s_time).as_millis()
+    //         );
+    //     }
+}
