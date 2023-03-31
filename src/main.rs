@@ -2,7 +2,7 @@ use constants::*;
 use math::*;
 // use scene::*;
 use std::time;
-extern crate ndarray;
+extern crate nalgebra;
 
 mod constants {
     use crate::math::*;
@@ -22,8 +22,6 @@ mod constants {
 }
 
 mod math {
-    pub type Vector = ndarray::Array1<f32>;
-
     pub trait Normalize {
         fn normalise(self) -> Self;
     }
@@ -35,17 +33,19 @@ mod math {
             self / self_size
         }
     }
+    // pub type Vector = ndarray::Array1<f32>;
+    pub type Vector = nalgebra::SVector<f32, 3>;
 
     macro_rules! vector {
         ($x: expr, $y:expr, $z: expr) => {{
-            Vector::from_vec(vec![$x as f32, $y as f32, $z as f32])
+            Vector::from([$x as f32, $y as f32, $z as f32])
         }};
     }
     pub(crate) use vector;
 
     #[cfg(test)]
     mod test_math {
-        use super::{Matrix, Normalize, Vector};
+        use super::{Matrix, Vector};
         #[test]
         fn add_arrays() {
             let a = Vector::from_vec(vec![1., 2., 3.]);
@@ -75,16 +75,10 @@ mod math {
         }
     }
 
-    pub type Matrix = ndarray::Array2<f32>;
+    pub type Matrix = nalgebra::SMatrix<f32, 3, 3>;
 
     fn matrix_from_columns(columns: [Vector; 3]) -> Matrix {
-        let mut matrix = Matrix::default((3, 3));
-        for col in 0..3 {
-            for row in 0..3 {
-                matrix[[row, col]] = columns[col][row];
-            }
-        }
-        matrix
+        Matrix::from_columns(&columns)
     }
 }
 
