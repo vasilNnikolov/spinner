@@ -25,12 +25,14 @@ mod math {
     pub type Vector = ndarray::Array1<f32>;
 
     pub trait Normalize {
-        fn normalise(&self) -> Self;
+        fn normalise(self) -> Self;
     }
 
     impl Normalize for Vector {
-        fn normalise(&self) -> Vector {
-            (*self).clone() / (self.dot(self)).sqrt()
+        fn normalise(self) -> Vector {
+            // not implemented as a oneliner because rust compiler is not happy for some reason
+            let self_size = (self.dot(&self)).sqrt();
+            self / self_size
         }
     }
 
@@ -86,189 +88,186 @@ mod math {
     }
 }
 
-// mod scene {
-//     use crate::constants::*;
-//     use crate::math::*;
-//     const MAX_DISTANCE: f32 = 7.0;
-//     const MIN_DISTANCE: f32 = 0.003;
+mod scene {
+    use crate::constants::*;
+    use crate::math::*;
+    const MAX_DISTANCE: f32 = 7.0;
+    const MIN_DISTANCE: f32 = 0.003;
 
-//     macro_rules! min {
-//         ($x:expr) => ($x);
-//         ($x:expr, $($y:expr),+) => {{
-//             let a = min!($($y),+);
-//             if a < $x {
-//                 a
-//             } else {
-//                 $x
-//             }
-//         }};
-//     }
+    macro_rules! min {
+        ($x:expr) => ($x);
+        ($x:expr, $($y:expr),+) => {{
+            let a = min!($($y),+);
+            if a < $x {
+                a
+            } else {
+                $x
+            }
+        }};
+    }
 
-//     macro_rules! max {
-//         ($x:expr) => ($x);
-//         ($x:expr, $($y:expr),+) => {{
-//             let a = max!($($y),+);
-//             if a > $x {
-//                 a
-//             } else {
-//                 $x
-//             }
-//         }};
-//     }
-//     pub(crate) use {max, min};
+    macro_rules! max {
+        ($x:expr) => ($x);
+        ($x:expr, $($y:expr),+) => {{
+            let a = max!($($y),+);
+            if a > $x {
+                a
+            } else {
+                $x
+            }
+        }};
+    }
+    pub(crate) use {max, min};
 
-//     pub struct Camera {
-//         /// the matrix which defines how the camera is facing
-//         /// x is width to the right, y is the direction the camera is facing, z is height up
-//         pub position: Vector,
-//         pub matrix: Matrix,
-//     }
+    pub struct Camera {
+        pub position: Vector,
+        /// the matrix which converts from camera coordinates to outside world coordinates
+        /// x is width to the right, y is the direction the camera is facing, z is height up
+        pub matrix: Matrix,
+    }
 
-//     impl Camera {
-//         pub fn get_ray_from_camera(&self, y: i32, x: i32) -> Vector {
-//             // let ray_camera_rf = UNIT_Y
-//             //     - FOV / WIDTH as f32 * H_W_RATIO * ((y - HEIGHT / 2) as f32) * UNIT_Z
-//             //     + FOV / WIDTH as f32 * ((x - WIDTH / 2) as f32) * UNIT_X;
-//             let ray_camera_rf = vector!(
-//                 FOV / WIDTH as f32 * ((x - WIDTH / 2) as f32),
-//                 1,
-//                 -FOV / WIDTH as f32 * H_W_RATIO * ((y - HEIGHT / 2) as f32)
-//             );
+    impl Camera {
+        pub fn get_ray_from_camera(&self, y: i32, x: i32) -> Vector {
+            // let ray_camera_rf = UNIT_Y
+            //     - FOV / WIDTH as f32 * H_W_RATIO * ((y - HEIGHT / 2) as f32) * UNIT_Z
+            //     + FOV / WIDTH as f32 * ((x - WIDTH / 2) as f32) * UNIT_X;
+            let ray_camera_rf = vector!(
+                FOV / WIDTH as f32 * ((x - WIDTH / 2) as f32),
+                1,
+                -FOV / WIDTH as f32 * H_W_RATIO * ((y - HEIGHT / 2) as f32)
+            );
 
-//             (self.matrix.dot(&ray_camera_rf)).normalise()
-//         }
-//         /// computes the normal vector to the surface which intersects the direction vector, or
-//         /// returns none if no intersection
-//         /// direction should be normalised
-//         fn compute_intersection(&self, direction: &vector) -> Option<vector> {
-//             let mut ray_front = self.position;
-//             loop {
-//                 let distance = signed_distance_function(&ray_front);
-//                 if distance > MAX_DISTANCE {
-//                     return None;
-//                 } else if distance < MIN_DISTANCE {
-//                     // compute normal to surface
-//                     let dx = Vec3 {
-//                         components: [MIN_DISTANCE, 0.0, 0.0],
-//                     };
-//                     let dy = Vec3 {
-//                         components: [0.0, MIN_DISTANCE, 0.0],
-//                     };
-//                     let dz = Vec3 {
-//                         components: [0.0, 0.0, MIN_DISTANCE],
-//                     };
-//                     return Some(
-//                         Vec3 {
-//                             components: [
-//                                 (signed_distance_function(&(ray_front + dx)) - distance)
-//                                     / MIN_DISTANCE,
-//                                 (signed_distance_function(&(ray_front + dy)) - distance)
-//                                     / MIN_DISTANCE,
-//                                 (signed_distance_function(&(ray_front + dz)) - distance)
-//                                     / MIN_DISTANCE,
-//                             ],
-//                         }
-//                         .normalise(),
-//                     );
-//                 } else {
-//                     ray_front = ray_front + *direction * distance;
-//                 }
-//             }
-//         }
+            (self.matrix.dot(&ray_camera_rf)).normalise()
+        }
+        /// computes the normal vector to the surface which intersects the direction vector, or
+        /// returns none if no intersection
+        /// direction should be normalised
+        fn compute_intersection(&self, direction: &Vector) -> Option<Vector> {
+            let mut ray_front = self.position;
+            loop {
+                let distance = signed_distance_function(&ray_front);
+                if distance > MAX_DISTANCE {
+                    return None;
+                } else if distance < MIN_DISTANCE {
+                    let (dx, dy, dz) = (
+                        vector!(MIN_DISTANCE, 0, 0),
+                        vector!(0, MIN_DISTANCE, 0),
+                        vector!(0, 0, MIN_DISTANCE),
+                    );
+                    return Some(
+                        vector!(
+                            (signed_distance_function(&(ray_front.clone() + dx)) - distance)
+                                / MIN_DISTANCE,
+                            (signed_distance_function(&(ray_front.clone() + dy)) - distance)
+                                / MIN_DISTANCE,
+                            (signed_distance_function(&(ray_front.clone() + dz)) - distance)
+                                / MIN_DISTANCE
+                        )
+                        .normalise(),
+                    );
+                } else {
+                    ray_front = ray_front + (*direction).clone() * distance;
+                }
+            }
+        }
 
-//         pub fn compute_light_intensity(&self, direction: &Vec3) -> char {
-//             let ascii_table: Vec<char> = ",:;+*@%$#@".chars().collect();
-//             let n_chars = ascii_table.len();
-//             match self.compute_intersection(direction) {
-//                 Some(normal_vec) => {
-//                     let intensity = normal_vec * (Vec3::zero_vec() - *direction).normalise();
-//                     let index = intensity * intensity * (n_chars as f32);
-//                     if index < 0.0 {
-//                         return ' ';
-//                     } else if index > n_chars as f32 - 1.0 {
-//                         return ascii_table[n_chars - 1];
-//                     }
-//                     return ascii_table[index as usize];
-//                 }
-//                 None => ' ',
-//             }
-//         }
-//     }
+        /// TODO implement
+        pub fn compute_light_intensity(&self, direction: &Vector) -> char {
+            let ascii_table: Vec<char> = ",:;+*@%$#@".chars().collect();
+            let n_chars = ascii_table.len();
+            match self.compute_intersection(direction) {
+                Some(normal_vec) => {
+                    let intensity =
+                        normal_vec * (vector!(0, 0, 0) - (*direction).clone()).normalise();
+                    let index = intensity.dot(&intensity) * (n_chars as f32);
+                    if index < 0.0 {
+                        return ' ';
+                    } else if index > n_chars as f32 - 1.0 {
+                        return ascii_table[n_chars - 1];
+                    }
+                    return ascii_table[index as usize];
+                }
+                None => ' ',
+            }
+        }
+    }
 
-//     fn signed_distance_function(position: &Vec3) -> f32 {
-//         min!(balls(position), shaft(position), head(position))
-//     }
+    /// TODO implement
+    fn signed_distance_function(position: &Vector) -> f32 {
+        0 as f32
+        // min!(balls(position), shaft(position), head(position))
+    }
 
-//     fn balls(position: &Vec3) -> f32 {
-//         let left_center = Vec3 {
-//             components: [-0.3, 0.0, 0.0],
-//         };
-//         let right_center = Vec3 {
-//             components: [0.3, 0.0, 0.0],
-//         };
-//         return min!(
-//             sphere(position, &left_center, 0.5),
-//             sphere(position, &right_center, 0.5)
-//         );
-//     }
+    //     fn balls(position: &Vec3) -> f32 {
+    //         let left_center = Vec3 {
+    //             components: [-0.3, 0.0, 0.0],
+    //         };
+    //         let right_center = Vec3 {
+    //             components: [0.3, 0.0, 0.0],
+    //         };
+    //         return min!(
+    //             sphere(position, &left_center, 0.5),
+    //             sphere(position, &right_center, 0.5)
+    //         );
+    //     }
 
-//     fn shaft(position: &Vec3) -> f32 {
-//         let lower_plane = plane(position, &Vec3::zero_vec(), &(-1.0 * UNIT_Z));
-//         let upper_plane = plane(
-//             position,
-//             &Vec3 {
-//                 components: [0.0, 0.0, 2.5],
-//             },
-//             &UNIT_Z,
-//         );
-//         let r_relative = *position
-//             - Vec3 {
-//                 components: [0.0, 0.2, 0.0],
-//             };
+    //     fn shaft(position: &Vec3) -> f32 {
+    //         let lower_plane = plane(position, &Vec3::zero_vec(), &(-1.0 * UNIT_Z));
+    //         let upper_plane = plane(
+    //             position,
+    //             &Vec3 {
+    //                 components: [0.0, 0.0, 2.5],
+    //             },
+    //             &UNIT_Z,
+    //         );
+    //         let r_relative = *position
+    //             - Vec3 {
+    //                 components: [0.0, 0.2, 0.0],
+    //             };
 
-//         let cylinder = (r_relative - (r_relative * UNIT_Z) * UNIT_Z).norm() - 0.4;
+    //         let cylinder = (r_relative - (r_relative * UNIT_Z) * UNIT_Z).norm() - 0.4;
 
-//         max!(lower_plane, upper_plane, cylinder)
-//     }
+    //         max!(lower_plane, upper_plane, cylinder)
+    //     }
 
-//     fn head(position: &Vec3) -> f32 {
-//         let head_center = Vec3 {
-//             components: [0.0, 0.2, 2.5],
-//         };
-//         max!(
-//             sphere(position, &head_center, 0.5),
-//             plane(position, &head_center, &(-1.0 * UNIT_Z))
-//         )
-//     }
+    //     fn head(position: &Vec3) -> f32 {
+    //         let head_center = Vec3 {
+    //             components: [0.0, 0.2, 2.5],
+    //         };
+    //         max!(
+    //             sphere(position, &head_center, 0.5),
+    //             plane(position, &head_center, &(-1.0 * UNIT_Z))
+    //         )
+    //     }
 
-//     fn plane(position: &Vec3, r0: &Vec3, normal: &Vec3) -> f32 {
-//         (*position - *r0) * *normal
-//     }
+    //     fn plane(position: &Vec3, r0: &Vec3, normal: &Vec3) -> f32 {
+    //         (*position - *r0) * *normal
+    //     }
 
-//     fn sphere(position: &Vec3, sphere_center: &Vec3, sphere_radius: f32) -> f32 {
-//         (*position - *sphere_center).norm() - sphere_radius
-//     }
+    //     fn sphere(position: &Vec3, sphere_center: &Vec3, sphere_radius: f32) -> f32 {
+    //         (*position - *sphere_center).norm() - sphere_radius
+    //     }
 
-//     pub fn clear_screen() {
-//         print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
-//     }
-// }
+    //     pub fn clear_screen() {
+    //         print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+    //     }
+    // }
 
-// fn modify_camera(camera: &mut Camera, start_time: &time::Instant) {
-//     let time_ms = time::Instant::now().duration_since(*start_time).as_millis() as f32;
+    // fn modify_camera(camera: &mut Camera, start_time: &time::Instant) {
+    //     let time_ms = time::Instant::now().duration_since(*start_time).as_millis() as f32;
 
-//     let phase = time_ms / 1500.0;
-//     camera.position = Vec3 {
-//         components: [
-//             5.0 * phase.sin(),
-//             5.0 * phase.cos(),
-//             4.0 * (0.6 * phase).cos(),
-//         ],
-//     } + 3.6 * UNIT_Z;
-//     camera.matrix.mat[1] = (1.25 * UNIT_Z - camera.position).normalise();
-//     camera.matrix.mat[0] = cross(&camera.matrix.mat[1], &UNIT_Z).normalise();
-//     camera.matrix.mat[2] = cross(&camera.matrix.mat[0], &camera.matrix.mat[1]);
-// }
+    //     let phase = time_ms / 1500.0;
+    //     camera.position = Vec3 {
+    //         components: [
+    //             5.0 * phase.sin(),
+    //             5.0 * phase.cos(),
+    //             4.0 * (0.6 * phase).cos(),
+    //         ],
+    //     } + 3.6 * UNIT_Z;
+    //     camera.matrix.mat[1] = (1.25 * UNIT_Z - camera.position).normalise();
+    //     camera.matrix.mat[0] = cross(&camera.matrix.mat[1], &UNIT_Z).normalise();
+    //     camera.matrix.mat[2] = cross(&camera.matrix.mat[0], &camera.matrix.mat[1]);
+}
 
 fn main() {
     //     let mut camera = Camera {
