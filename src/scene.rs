@@ -1,7 +1,7 @@
 use crate::constants::*;
 use crate::math::*;
 const MAX_DISTANCE: f32 = 7.0;
-const MIN_DISTANCE: f32 = 0.03;
+const MIN_DISTANCE: f32 = 0.003;
 
 macro_rules! min {
     ($x:expr) => ($x);
