@@ -55,13 +55,17 @@ fn main() {
                 screen_buffer[row as usize][col as usize] = char_to_place;
             }
         }
+        let end_of_render = time::Instant::now();
 
         for row in screen_buffer {
             println!("{}", row.iter().collect::<String>());
         }
         println!(
-            "Time per frame: {} ms",
-            time::Instant::now().duration_since(s_time).as_millis()
+            "Time to render: {} ms \n Time to draw: {} ms",
+            end_of_render.duration_since(s_time).as_millis(),
+            time::Instant::now()
+                .duration_since(end_of_render)
+                .as_millis()
         );
     }
 }

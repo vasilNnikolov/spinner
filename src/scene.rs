@@ -1,31 +1,31 @@
 use crate::constants::*;
 use crate::math::*;
 const MAX_DISTANCE: f32 = 7.0;
-const MIN_DISTANCE: f32 = 0.003;
+const MIN_DISTANCE: f32 = 0.03;
 
 macro_rules! min {
-        ($x:expr) => ($x);
-        ($x:expr, $($y:expr),+) => {{
-            let a = min!($($y),+);
-            if a < $x {
-                a
-            } else {
-                $x
-            }
-        }};
-    }
+    ($x:expr) => ($x);
+    ($x:expr, $($y:expr),+) => {{
+        let a = min!($($y),+);
+        if a < $x {
+            a
+        } else {
+            $x
+        }
+    }};
+}
 
 macro_rules! max {
-        ($x:expr) => ($x);
-        ($x:expr, $($y:expr),+) => {{
-            let a = max!($($y),+);
-            if a > $x {
-                a
-            } else {
-                $x
-            }
-        }};
-    }
+    ($x:expr) => ($x);
+    ($x:expr, $($y:expr),+) => {{
+        let a = max!($($y),+);
+        if a > $x {
+            a
+        } else {
+            $x
+        }
+    }};
+}
 pub(crate) use {max, min};
 
 pub struct Camera {
@@ -38,13 +38,13 @@ pub struct Camera {
 
 impl Camera {
     pub fn get_ray_from_camera(&self, y: i32, x: i32) -> Vector {
-        let ray_camera_rf = vector!(
+        let ray_camera_reference_frame = vector!(
             FOV / WIDTH as f32 * ((x - WIDTH / 2) as f32),
             1,
             -FOV / WIDTH as f32 * H_W_RATIO * ((y - HEIGHT / 2) as f32)
         );
 
-        (self.matrix * ray_camera_rf).normalise()
+        (self.matrix * ray_camera_reference_frame).normalise()
     }
     /// computes the normal vector to the surface which intersects the direction vector, or
     /// returns none if no intersection
@@ -94,7 +94,6 @@ impl Camera {
     }
 }
 
-/// TODO implement
 fn signed_distance_function(position: &Vector) -> f32 {
     min!(sdf_balls(position), sdf_shaft(position), sdf_head(position))
 }
