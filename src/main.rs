@@ -1,6 +1,8 @@
+#![allow(dead_code)]
+#![allow(unused_imports)]
 use constants::*;
 use math::*;
-// use scene::*;
+use scene::*;
 use std::time;
 extern crate nalgebra;
 
@@ -10,15 +12,6 @@ mod constants {
     pub const H_W_RATIO: f32 = 2.0;
     pub const HEIGHT: i32 = 70;
     pub const WIDTH: i32 = 100;
-    // pub const UNIT_X: Vec3 = Vec3 {
-    //     components: [1.0, 0.0, 0.0],
-    // };
-    // pub const UNIT_Y: Vec3 = Vec3 {
-    //     components: [0.0, 1.0, 0.0],
-    // };
-    // pub const UNIT_Z: Vec3 = Vec3 {
-    //     components: [0.0, 0.0, 1.0],
-    // };
 }
 
 mod math {
@@ -31,7 +24,6 @@ mod math {
             self / self.norm()
         }
     }
-    // pub type Vector = ndarray::Array1<f32>;
     pub type Vector = nalgebra::SVector<f32, 3>;
 
     macro_rules! vector {
@@ -75,7 +67,7 @@ mod math {
 
     pub type Matrix = nalgebra::SMatrix<f32, 3, 3>;
 
-    fn matrix_from_columns(columns: [Vector; 3]) -> Matrix {
+    pub fn matrix_from_columns(columns: [Vector; 3]) -> Matrix {
         Matrix::from_columns(&columns)
     }
 }
@@ -140,9 +132,9 @@ mod scene {
                     return None;
                 } else if distance < MIN_DISTANCE {
                     let (dx, dy, dz) = (
-                        vector!(MIN_DISTANCE, 0, 0),
-                        vector!(0, MIN_DISTANCE, 0),
-                        vector!(0, 0, MIN_DISTANCE),
+                        MIN_DISTANCE * vector!(1, 0, 0),
+                        MIN_DISTANCE * vector!(0, 1, 0),
+                        MIN_DISTANCE * vector!(0, 0, 1),
                     );
                     return Some(
                         vector!(
@@ -163,9 +155,8 @@ mod scene {
             let n_chars = ascii_table.len();
             match self.compute_intersection(direction) {
                 Some(normal_vec) => {
-                    let intensity =
-                        normal_vec.transpose() * (vector!(0, 0, 0) - (*direction)).normalise();
-                    let index = intensity.dot(&intensity) * (n_chars as f32);
+                    let intensity = normal_vec.dot(&(vector!(0, 0, 0) - (*direction)).normalise());
+                    let index = intensity * (n_chars as f32);
                     if index < 0.0 {
                         return ' ';
                     } else if index > n_chars as f32 - 1.0 {
@@ -180,43 +171,41 @@ mod scene {
 
     /// TODO implement
     fn signed_distance_function(position: &Vector) -> f32 {
-        0.0
-        // min!(balls(position), shaft(position), head(position))
+        min!(sdf_balls(position), sdf_shaft(position), sdf_head(position))
     }
 
-    fn balls(position: &Vector) -> f32 {
+    fn sdf_balls(position: &Vector) -> f32 {
         let left_center = vector!(-0.3, 0, 0);
         let right_center = vector!(0.3, 0.0, 0.0);
         return min!(
-            sphere(position, &left_center, 0.5),
-            sphere(position, &right_center, 0.5)
+            sdf_sphere(position, &left_center, 0.5),
+            sdf_sphere(position, &right_center, 0.5)
         );
     }
 
-    fn shaft(position: &Vector) -> f32 {
-        let lower_plane = plane(position, &Vector::zeros(), &vector!(0, 0, -1));
-        let upper_plane = plane(position, &vector!(0, 0, 2.5), &vector!(0, 0, 1));
+    fn sdf_shaft(position: &Vector) -> f32 {
+        let lower_plane = sdf_plane(position, &Vector::zeros(), &vector!(0, 0, -1));
+        let upper_plane = sdf_plane(position, &vector!(0, 0, 2.5), &vector!(0, 0, 1));
         let r_relative = *position - vector!(0, 0.2, 0);
-        let cylinder = (r_relative - (r_relative * UNIT_Z) * UNIT_Z).norm() - 0.4;
+        let cylinder =
+            (r_relative - (r_relative.dot(&vector!(0, 0, 1))) * vector!(0, 0, 1)).norm() - 0.4;
 
         max!(lower_plane, upper_plane, cylinder)
     }
 
-    fn head(position: &Vector) -> f32 {
-        let head_center = Vector {
-            components: [0.0, 0.2, 2.5],
-        };
+    fn sdf_head(position: &Vector) -> f32 {
+        let head_center = vector!(0, 0.2, 2.5);
         max!(
-            sphere(position, &head_center, 0.5),
-            plane(position, &head_center, &(-1.0 * UNIT_Z))
+            sdf_sphere(position, &head_center, 0.5),
+            sdf_plane(position, &head_center, &(-1.0 * vector!(0, 0, 1)))
         )
     }
 
-    fn plane(position: &Vector, r0: &Vector, normal: &Vector) -> f32 {
-        (*position - *r0) * *normal
+    fn sdf_plane(position: &Vector, r0: &Vector, normal: &Vector) -> f32 {
+        (*position - *r0).dot(normal)
     }
 
-    fn sphere(position: &Vector, sphere_center: &Vector, sphere_radius: f32) -> f32 {
+    fn sdf_sphere(position: &Vector, sphere_center: &Vector, sphere_radius: f32) -> f32 {
         (*position - *sphere_center).norm() - sphere_radius
     }
 
@@ -224,62 +213,56 @@ mod scene {
         print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
     }
 }
-
-// fn modify_camera(camera: &mut Camera, start_time: &time::Instant) {
-//     let time_ms = time::Instant::now().duration_since(*start_time).as_millis() as f32;
-
-//     let phase = time_ms / 1500.0;
-//     camera.position = Vec3 {
-//         components: [
-//             5.0 * phase.sin(),
-//             5.0 * phase.cos(),
-//             4.0 * (0.6 * phase).cos(),
-//         ],
-//     } + 3.6 * UNIT_Z;
-//     camera.matrix.mat[1] = (1.25 * UNIT_Z - camera.position).normalise();
-//     camera.matrix.mat[0] = cross(&camera.matrix.mat[1], &UNIT_Z).normalise();
-//     camera.matrix.mat[2] = cross(&camera.matrix.mat[0], &camera.matrix.mat[1]);
-// }
-
+fn modify_camera(camera: &mut Camera, start_time: &time::Instant) {
+    let time_ms = time::Instant::now().duration_since(*start_time).as_millis() as f32;
+    let phase = time_ms / 1500.0;
+    camera.position = vector!(
+        5.0 * phase.sin(),
+        5.0 * phase.cos(),
+        4.0 * (0.6 * phase).cos()
+    ) + 3.6 * vector!(0, 0, 1);
+    let column_1 = (1.25 * vector!(0, 0, 1) - camera.position).normalise();
+    let column_0 = column_1.cross(&vector!(0, 0, 1)).normalise();
+    let column_2 = column_0.cross(&column_1);
+    camera.matrix = matrix_from_columns([column_0, column_1, column_2]);
+}
 fn main() {
-    //     let mut camera = Camera {
-    //         matrix: Mat3 {
-    //             mat: [UNIT_X, UNIT_Y, UNIT_Z],
-    //         },
-    //         position: -5.0 * UNIT_Y + 1.5 * UNIT_Z,
-    //     };
-    //     let mut screen_buffer = [[' '; WIDTH as usize]; HEIGHT as usize];
-    //     for i in 0..WIDTH as usize {
-    //         screen_buffer[0][i] = '-';
-    //         screen_buffer[(HEIGHT - 1) as usize][i] = '-';
-    //     }
-    //     for i in 0..HEIGHT as usize {
-    //         screen_buffer[i][0] = '|';
-    //         screen_buffer[i][(WIDTH - 1) as usize] = '|';
-    //     }
+    let mut camera = Camera {
+        matrix: Matrix::identity(),
+        position: -5.0 * vector!(0, 1, 0) + 1.5 * vector!(0, 0, 1),
+    };
+    let mut screen_buffer = [[' '; WIDTH as usize]; HEIGHT as usize];
+    for i in 0..WIDTH as usize {
+        screen_buffer[0][i] = '-';
+        screen_buffer[(HEIGHT - 1) as usize][i] = '-';
+    }
+    for i in 0..HEIGHT as usize {
+        screen_buffer[i][0] = '|';
+        screen_buffer[i][(WIDTH - 1) as usize] = '|';
+    }
 
-    //     let program_start = time::Instant::now();
-    //     loop {
-    //         let s_time = time::Instant::now();
-    //         scene::clear_screen();
-    //         // move camera
-    //         modify_camera(&mut camera, &program_start);
+    let program_start = time::Instant::now();
+    loop {
+        let s_time = time::Instant::now();
+        scene::clear_screen();
+        // move camera
+        modify_camera(&mut camera, &program_start);
 
-    //         for row in 1..HEIGHT - 1 {
-    //             for col in 1..WIDTH - 1 {
-    //                 let cam_ray = camera.get_ray_from_camera(row, col);
-    //                 let char_to_place = camera.compute_light_intensity(&cam_ray);
+        for row in 1..HEIGHT - 1 {
+            for col in 1..WIDTH - 1 {
+                let cam_ray = camera.get_ray_from_camera(row, col);
+                let char_to_place = camera.compute_light_intensity(&cam_ray);
 
-    //                 screen_buffer[row as usize][col as usize] = char_to_place;
-    //             }
-    //         }
+                screen_buffer[row as usize][col as usize] = char_to_place;
+            }
+        }
 
-    //         for row in screen_buffer {
-    //             println!("{}", row.iter().collect::<String>());
-    //         }
-    //         println!(
-    //             "Time per frame: {} ms",
-    //             time::Instant::now().duration_since(s_time).as_millis()
-    //         );
-    //     }
+        for row in screen_buffer {
+            println!("{}", row.iter().collect::<String>());
+        }
+        println!(
+            "Time per frame: {} ms",
+            time::Instant::now().duration_since(s_time).as_millis()
+        );
+    }
 }
