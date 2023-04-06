@@ -1,5 +1,7 @@
 use crate::constants::*;
 use crate::math::*;
+use crossterm::{cursor, ExecutableCommand};
+use std::io::Write;
 const MAX_DISTANCE: f32 = 7.0;
 const MIN_DISTANCE: f32 = 0.003;
 
@@ -133,6 +135,10 @@ fn sdf_sphere(position: &Vector, sphere_center: &Vector, sphere_radius: f32) -> 
     (*position - *sphere_center).norm() - sphere_radius
 }
 
-pub fn clear_screen() {
-    print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+pub fn clear_screen(stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+    (*stdout).execute(cursor::MoveTo(0, 0))?;
+    stdout.flush()?;
+    std::io::Result<()>
+    Ok(())
+    //print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
 }

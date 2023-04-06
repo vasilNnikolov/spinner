@@ -3,6 +3,8 @@
 #![allow(non_snake_case)]
 extern crate nalgebra;
 
+use crossterm::{cursor, ExecutableCommand};
+
 mod constants;
 mod math;
 mod scene;
@@ -56,12 +58,15 @@ fn initialize_camera() -> Camera {
     }
 }
 fn main() {
+    let mut stdout = std::io::stdout();
     let mut camera = initialize_camera();
     let mut screen_buffer = initialize_screen_buffer();
     let program_start = time::Instant::now();
     loop {
         let s_time = time::Instant::now();
-        scene::clear_screen();
+        if let Err(_e) = scene::clear_screen(&mut stdout) {
+            //TODO handle error
+        }
         // move camera
         move_camera(&mut camera, &program_start);
 
