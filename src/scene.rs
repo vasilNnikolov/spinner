@@ -136,7 +136,7 @@ fn sdf_sphere(position: &Vector, sphere_center: &Vector, sphere_radius: f32) -> 
 }
 
 pub fn clear_screen(stdout: &mut std::io::Stdout) -> std::io::Result<()> {
-    (*stdout).execute(cursor::MoveTo(0, 0))?;
+    stdout.execute(cursor::MoveTo(0, 0))?;
     stdout.flush()?;
     Ok(())
     //print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
