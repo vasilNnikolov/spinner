@@ -1,4 +1,6 @@
-pub const FOV: f32 = 0.4; // horizontal field of view in radians
+/// the horizontal field of view, in radians
+pub const FOV: f32 = 0.8;
+/// the ratio of height to width of a typical terminal
 pub const H_W_RATIO: f32 = 2.0;
-pub const HEIGHT: i32 = 70;
-pub const WIDTH: i32 = 100;
+pub const HEIGHT: i32 = 50;
+pub const WIDTH: i32 = 180;
