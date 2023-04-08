@@ -52,3 +52,28 @@ pub type Matrix = nalgebra::SMatrix<f32, 3, 3>;
 pub fn matrix_from_columns(columns: [Vector; 3]) -> Matrix {
     Matrix::from_columns(&columns)
 }
+
+macro_rules! min {
+    ($x:expr) => ($x);
+    ($x:expr, $($y:expr),+) => {{
+        let a = min!($($y),+);
+        if a < $x {
+            a
+        } else {
+            $x
+        }
+    }};
+}
+
+macro_rules! max {
+    ($x:expr) => ($x);
+    ($x:expr, $($y:expr),+) => {{
+        let a = max!($($y),+);
+        if a > $x {
+            a
+        } else {
+            $x
+        }
+    }};
+}
+pub(crate) use {max, min};
