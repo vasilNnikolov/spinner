@@ -70,6 +70,7 @@ fn main() -> std::io::Result<()> {
     let mut camera = initialize_camera();
     let mut screen_buffer = initialize_screen_buffer();
     let program_start = time::Instant::now();
+    let pp = scene::PP {};
     loop {
         let s_time = time::Instant::now();
         clear_screen(&mut stdout)?;
@@ -80,7 +81,7 @@ fn main() -> std::io::Result<()> {
         for row in 1..HEIGHT - 1 {
             for col in 1..WIDTH - 1 {
                 let cam_ray = camera.get_ray_from_camera(row, col);
-                let char_to_place = camera.compute_light_intensity(&cam_ray);
+                let char_to_place = camera.compute_light_intensity(&pp, &cam_ray);
 
                 screen_buffer[row as usize][col as usize] = char_to_place;
             }
