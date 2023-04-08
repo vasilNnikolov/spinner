@@ -3,7 +3,9 @@
 #![allow(non_snake_case)]
 extern crate nalgebra;
 
-use crossterm::{cursor, ExecutableCommand};
+use crossterm::{cursor, queue, style, ExecutableCommand};
+
+use std::io::Write;
 
 mod constants;
 mod math;
@@ -51,22 +53,26 @@ fn initialize_screen_buffer() -> [[char; WIDTH as usize]; HEIGHT as usize] {
     screen_buffer
 }
 
+pub fn clear_screen(stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+    stdout.execute(cursor::MoveTo(0, 0))?;
+    stdout.flush()?;
+    Ok(())
+}
+
 fn initialize_camera() -> Camera {
     Camera {
         matrix: Matrix::identity(),
         position: -5.0 * vector!(0, 1, 0) + 1.5 * vector!(0, 0, 1),
     }
 }
-fn main() {
+fn main() -> std::io::Result<()> {
     let mut stdout = std::io::stdout();
     let mut camera = initialize_camera();
     let mut screen_buffer = initialize_screen_buffer();
     let program_start = time::Instant::now();
     loop {
         let s_time = time::Instant::now();
-        if let Err(_e) = scene::clear_screen(&mut stdout) {
-            //TODO handle error
-        }
+        clear_screen(&mut stdout)?;
         // move camera
         move_camera(&mut camera, &program_start);
 
@@ -81,14 +87,23 @@ fn main() {
         }
         let end_of_render = time::Instant::now();
 
-        for row in screen_buffer {
-            println!("{}", row.iter().collect::<String>());
+        for (row_num, row) in screen_buffer.iter().enumerate() {
+            // println!("{}", row.iter().collect::<String>());
+            queue!(
+                stdout,
+                cursor::MoveTo(0, row_num as u16),
+                style::Print((*row).iter().collect::<String>())
+            )?;
         }
-        println!(
-            "Time to render: {} ms \n Time to draw: {} ms",
-            end_of_render.duration_since(s_time).as_millis(),
-            end_of_render.elapsed().as_millis()
-        );
-        fps_cap(25, &s_time);
+        queue!(
+            stdout,
+            cursor::MoveTo(0, HEIGHT as u16),
+            style::Print(format!(
+                "FPS STATISTICS:\n    Time to render: {} ms \n    Time to draw: {} ms",
+                end_of_render.duration_since(s_time).as_millis(),
+                end_of_render.elapsed().as_millis()
+            ))
+        )?;
+        fps_cap(15, &s_time);
     }
 }
