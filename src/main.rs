@@ -20,8 +20,8 @@ fn move_camera(camera: &mut Camera, start_time: &time::Instant) {
     let time_ms = time::Instant::now().duration_since(*start_time).as_millis() as f32;
     let phase = time_ms / 1500.0;
     camera.position = vector!(
-        6.0 * phase.sin(),
-        6.0 * phase.cos(),
+        9.0 * phase.sin(),
+        7.0 * phase.cos(),
         4.0 * (0.6 * phase).cos()
     ) + 3.6 * vector!(0, 0, 1);
     let column_1 = (1.25 * vector!(0, 0, 1) - camera.position).normalise();
