@@ -80,3 +80,15 @@ pub trait Object3D {
     /// the function returns the distance between the camera and the object
     fn signed_distance_function(&self, r: &Vector) -> f32;
 }
+
+pub trait Movable {
+    /// returns the "center" of the 3D object, however it may be defined
+    fn get_center(&self) -> Vector;
+    /// move the object along the given vector `move_by`, so its new center is `old_center + move_by`
+    fn move_object(&mut self, move_by: &Vector);
+    /// apply a rotation to the object relative to its own center
+    /// for any fixed point of the object with radius-vector `r` before and `r_1` after the
+    /// rotation, all relative to the center of the object, is valid that `r_1 =
+    /// rotation_matrix.dot(&r)`
+    fn rotate(&mut self, rotation_matrix: &Matrix);
+}
