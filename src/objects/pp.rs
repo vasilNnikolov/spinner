@@ -1,32 +1,48 @@
-pub struct PP {}
 use crate::math::*;
 use crate::scene::Object3D;
 
+pub struct PP {
+    center: Vector,
+    /// a vector parallel to the axis of the shaft
+    shaft_axis: Vector,
+    /// a vector connecting the center of the left and right ball
+    left_to_right_ball: Vector,
+}
+
 impl PP {
-    fn sdf_balls(position: &Vector) -> f32 {
-        let left_center = vector!(-0.3, 0, 0);
-        let right_center = vector!(0.3, 0.0, 0.0);
+    pub fn default() -> PP {
+        PP {
+            center: vector!(0, 0, 0),
+            shaft_axis: vector!(0, 0, 1),
+            left_to_right_ball: vector!(0.6, 0, 0),
+        }
+    }
+    fn sdf_balls(&self, position: &Vector) -> f32 {
+        let left_center = self.center - self.left_to_right_ball / 2.0;
+        let right_center = self.center + self.left_to_right_ball / 2.0;
         return min!(
             PP::sdf_sphere(position, &left_center, 0.5),
             PP::sdf_sphere(position, &right_center, 0.5)
         );
     }
 
-    fn sdf_shaft(position: &Vector) -> f32 {
-        let lower_plane = PP::sdf_plane(position, &Vector::zeros(), &vector!(0, 0, -1));
-        let upper_plane = PP::sdf_plane(position, &vector!(0, 0, 2.5), &vector!(0, 0, 1));
-        let r_relative = *position - vector!(0, 0.2, 0);
+    fn sdf_shaft(&self, position: &Vector) -> f32 {
+        let lower_plane = PP::sdf_plane(position, &Vector::zeros(), &(-1.0 * self.shaft_axis));
+        let upper_plane = PP::sdf_plane(position, &(2.5 * self.shaft_axis), &self.shaft_axis);
+        let r_relative =
+            *position - 0.2 * (self.shaft_axis.cross(&self.left_to_right_ball)).normalise();
         let cylinder =
-            (r_relative - (r_relative.dot(&vector!(0, 0, 1))) * vector!(0, 0, 1)).norm() - 0.4;
+            (r_relative - (r_relative.dot(&self.shaft_axis)) * self.shaft_axis).norm() - 0.4;
 
         max!(lower_plane, upper_plane, cylinder)
     }
 
-    fn sdf_head(position: &Vector) -> f32 {
-        let head_center = vector!(0, 0.2, 2.5);
+    fn sdf_head(&self, position: &Vector) -> f32 {
+        let head_center = 0.2 * (self.shaft_axis.cross(&self.left_to_right_ball)).normalise()
+            + 2.5 * self.shaft_axis;
         max!(
             PP::sdf_sphere(position, &head_center, 0.5),
-            PP::sdf_plane(position, &head_center, &(-1.0 * vector!(0, 0, 1)))
+            PP::sdf_plane(position, &head_center, &(-1.0 * self.shaft_axis))
         )
     }
 
@@ -42,9 +58,9 @@ impl PP {
 impl Object3D for PP {
     fn signed_distance_function(&self, position: &Vector) -> f32 {
         min!(
-            PP::sdf_balls(position),
-            PP::sdf_shaft(position),
-            PP::sdf_head(position)
+            self.sdf_balls(position),
+            self.sdf_shaft(position),
+            self.sdf_head(position)
         )
     }
 }
