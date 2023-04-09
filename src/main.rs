@@ -42,15 +42,9 @@ fn initialize_screen_buffer() -> [[char; WIDTH as usize]; HEIGHT as usize] {
     screen_buffer
 }
 
-fn initialize_camera() -> Camera {
-    Camera {
-        matrix: Matrix::identity(),
-        position: -5.0 * vector!(0, 1, 0) + 1.5 * vector!(0, 0, 1),
-    }
-}
 fn main() -> std::io::Result<()> {
     let mut stdout = std::io::stdout();
-    let mut camera = initialize_camera();
+    let mut camera = Camera::default();
     let mut screen_buffer = initialize_screen_buffer();
     let pp = objects::pp::PP::default();
     let program_start = time::Instant::now();
