@@ -2,16 +2,14 @@
 #![allow(unused_imports)]
 #![allow(non_snake_case)]
 
-use crossterm::{cursor, queue, style, ExecutableCommand};
-
-use std::io::Write;
-
 mod constants;
 mod math;
 mod objects;
 mod scene;
+mod terminal;
 
 use constants::*;
+use crossterm::{cursor, queue, style};
 use math::*;
 use scene::*;
 use std::time;
@@ -30,16 +28,6 @@ fn move_camera(camera: &mut Camera, start_time: &time::Instant) {
     camera.matrix = matrix_from_columns([column_0, column_1, column_2]);
 }
 
-/// reduces the frame rate to a set number, fps, so there is less visual tearing in the terminal
-fn fps_cap(fps: u32, beginning_of_frame: &time::Instant) {
-    let time_for_one_frame_ms: f32 = 1000.0 / fps as f32;
-    let time_till_new_frame_ms =
-        time_for_one_frame_ms - (*beginning_of_frame).elapsed().as_millis() as f32;
-    if time_till_new_frame_ms > 0.0 {
-        std::thread::sleep(time::Duration::from_millis(time_till_new_frame_ms as u64));
-    }
-}
-
 /// draws the border of the screen buffer
 fn initialize_screen_buffer() -> [[char; WIDTH as usize]; HEIGHT as usize] {
     let mut screen_buffer = [[' '; WIDTH as usize]; HEIGHT as usize];
@@ -52,12 +40,6 @@ fn initialize_screen_buffer() -> [[char; WIDTH as usize]; HEIGHT as usize] {
         screen_buffer[i][(WIDTH - 1) as usize] = '|';
     }
     screen_buffer
-}
-
-pub fn clear_screen(stdout: &mut std::io::Stdout) -> std::io::Result<()> {
-    stdout.execute(cursor::MoveTo(0, 0))?;
-    stdout.flush()?;
-    Ok(())
 }
 
 fn initialize_camera() -> Camera {
@@ -74,7 +56,8 @@ fn main() -> std::io::Result<()> {
     let program_start = time::Instant::now();
     loop {
         let s_time = time::Instant::now();
-        clear_screen(&mut stdout)?;
+        // apparently there is no need to call flush every time
+        // terminal::clear_screen(&mut stdout)?;
         // move camera
         move_camera(&mut camera, &program_start);
 
@@ -91,22 +74,22 @@ fn main() -> std::io::Result<()> {
 
         // draw the computed ligth intensities to the screen
         for (row_num, row) in screen_buffer.iter().enumerate() {
-            queue!(
-                stdout,
-                cursor::MoveTo(0, row_num as u16),
-                style::Print((*row).iter().collect::<String>())
+            terminal::print_to_screen(
+                &mut stdout,
+                (row_num as u16, 0),
+                &(*row).iter().collect::<String>(),
             )?;
         }
         // print some FPS statistics
-        queue!(
-            stdout,
-            cursor::MoveTo(0, HEIGHT as u16),
-            style::Print(format!(
+        terminal::print_to_screen(
+            &mut stdout,
+            (HEIGHT as u16, 0),
+            &format!(
                 "FPS STATISTICS:\n    Time to render: {} ms \n    Time to draw: {} ms",
                 end_of_render.duration_since(s_time).as_millis(),
                 end_of_render.elapsed().as_millis()
-            ))
+            ),
         )?;
-        fps_cap(15, &s_time);
+        terminal::fps_cap(15, &s_time);
     }
 }
