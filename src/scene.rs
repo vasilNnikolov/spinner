@@ -1,8 +1,7 @@
 use crate::constants::*;
 use crate::math::*;
-// use crossterm::{cursor, ExecutableCommand};
-// use std::io::Write;
-const MAX_DISTANCE: f32 = 7.0;
+use crate::objects;
+const MAX_DISTANCE: f32 = 20.0;
 const MIN_DISTANCE: f32 = 0.003;
 
 pub struct Camera {
@@ -26,7 +25,11 @@ impl Camera {
     /// computes the normal vector to the surface which intersects the direction vector, or
     /// returns none if no intersection
     /// direction should be normalised
-    fn compute_intersection(&self, object: &impl Object3D, direction: &Vector) -> Option<Vector> {
+    fn compute_intersection(
+        &self,
+        object: &impl objects::Object3D,
+        direction: &Vector,
+    ) -> Option<Vector> {
         let mut ray_front = self.position;
         loop {
             let distance = object.signed_distance_function(&ray_front);
@@ -56,7 +59,11 @@ impl Camera {
         }
     }
 
-    pub fn compute_light_intensity(&self, object: &impl Object3D, direction: &Vector) -> char {
+    pub fn compute_light_intensity(
+        &self,
+        object: &impl objects::Object3D,
+        direction: &Vector,
+    ) -> char {
         let ascii_table: Vec<char> = ",:;+*@%$#@".chars().collect();
         let n_chars = ascii_table.len();
         match self.compute_intersection(object, direction) {
@@ -73,22 +80,4 @@ impl Camera {
             None => ' ',
         }
     }
-}
-
-pub trait Object3D {
-    /// r: A vector starting at the "center" (however that may be defined) of the 3D object and going to the camera
-    /// the function returns the distance between the camera and the object
-    fn signed_distance_function(&self, r: &Vector) -> f32;
-}
-
-pub trait Movable {
-    /// returns the "center" of the 3D object, however it may be defined
-    fn get_center(&self) -> Vector;
-    /// move the object along the given vector `move_by`, so its new center is `old_center + move_by`
-    fn move_object(&mut self, move_by: &Vector);
-    /// apply a rotation to the object relative to its own center
-    /// for any fixed point of the object with radius-vector `r` before and `r_1` after the
-    /// rotation, all relative to the center of the object, is valid that `r_1 =
-    /// rotation_matrix.dot(&r)`
-    fn rotate(&mut self, rotation_matrix: &Matrix);
 }

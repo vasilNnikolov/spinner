@@ -1,5 +1,5 @@
+use super::{Movable, Object3D, Rotatable};
 use crate::math::*;
-use crate::scene::Object3D;
 
 pub struct PP {
     center: Vector,
@@ -62,5 +62,18 @@ impl Object3D for PP {
             self.sdf_shaft(position),
             self.sdf_head(position)
         )
+    }
+}
+
+impl Movable for PP {
+    fn get_center(&mut self) -> &mut Vector {
+        &mut (self.center)
+    }
+}
+
+impl Rotatable for PP {}
+impl super::rotatable_vectors_priv::RotatableVectors for PP {
+    fn get_rotatable_vectors(&mut self) -> Vec<&mut Vector> {
+        Vec::from([&mut self.shaft_axis, &mut self.left_to_right_ball])
     }
 }
