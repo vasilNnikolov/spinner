@@ -1,3 +1,4 @@
+pub type Vector = nalgebra::SVector<f32, 3>;
 pub trait Normalize {
     fn normalise(self) -> Self;
 }
@@ -7,7 +8,6 @@ impl Normalize for Vector {
         self / self.norm()
     }
 }
-pub type Vector = nalgebra::SVector<f32, 3>;
 
 macro_rules! vector {
     ($x: expr, $y:expr, $z: expr) => {{
@@ -15,6 +15,12 @@ macro_rules! vector {
     }};
 }
 pub(crate) use vector;
+
+pub type Matrix = nalgebra::SMatrix<f32, 3, 3>;
+
+pub fn matrix_from_columns(columns: [Vector; 3]) -> Matrix {
+    Matrix::from_columns(&columns)
+}
 
 #[cfg(test)]
 mod test_math {
@@ -46,13 +52,6 @@ mod test_math {
         assert!(A * A == 2 as f32 * A)
     }
 }
-
-pub type Matrix = nalgebra::SMatrix<f32, 3, 3>;
-
-pub fn matrix_from_columns(columns: [Vector; 3]) -> Matrix {
-    Matrix::from_columns(&columns)
-}
-
 macro_rules! min {
     ($x:expr) => ($x);
     ($x:expr, $($y:expr),+) => {{
