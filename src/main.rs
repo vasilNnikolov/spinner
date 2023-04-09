@@ -9,6 +9,7 @@ use std::io::Write;
 
 mod constants;
 mod math;
+mod objects;
 mod scene;
 
 use constants::*;
@@ -30,6 +31,7 @@ fn move_camera(camera: &mut Camera, start_time: &time::Instant) {
     camera.matrix = matrix_from_columns([column_0, column_1, column_2]);
 }
 
+/// reduces the frame rate to a set number, fps, so there is less visual tearing in the terminal
 fn fps_cap(fps: u32, beginning_of_frame: &time::Instant) {
     let time_for_one_frame_ms: f32 = 1000.0 / fps as f32;
     let time_till_new_frame_ms =
@@ -69,15 +71,15 @@ fn main() -> std::io::Result<()> {
     let mut stdout = std::io::stdout();
     let mut camera = initialize_camera();
     let mut screen_buffer = initialize_screen_buffer();
+    let pp = objects::pp::PP {};
     let program_start = time::Instant::now();
-    let pp = scene::PP {};
     loop {
         let s_time = time::Instant::now();
         clear_screen(&mut stdout)?;
         // move camera
         move_camera(&mut camera, &program_start);
 
-        // draw the shape
+        // compute the light intensities for each pixel
         for row in 1..HEIGHT - 1 {
             for col in 1..WIDTH - 1 {
                 let cam_ray = camera.get_ray_from_camera(row, col);
@@ -88,14 +90,15 @@ fn main() -> std::io::Result<()> {
         }
         let end_of_render = time::Instant::now();
 
+        // draw the computed ligth intensities to the screen
         for (row_num, row) in screen_buffer.iter().enumerate() {
-            // println!("{}", row.iter().collect::<String>());
             queue!(
                 stdout,
                 cursor::MoveTo(0, row_num as u16),
                 style::Print((*row).iter().collect::<String>())
             )?;
         }
+        // print some FPS statistics
         queue!(
             stdout,
             cursor::MoveTo(0, HEIGHT as u16),
