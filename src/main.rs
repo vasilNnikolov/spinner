@@ -48,11 +48,12 @@ fn main() -> std::io::Result<()> {
     let mut screen_buffer = initialize_screen_buffer();
     let pp = objects::pp::PP::default();
     let program_start = time::Instant::now();
+    queue!(
+        stdout,
+        crossterm::terminal::Clear(crossterm::terminal::ClearType::All)
+    )?;
     loop {
         let s_time = time::Instant::now();
-        // apparently there is no need to call flush every time
-        // terminal::clear_screen(&mut stdout)?;
-        // move camera
         move_camera(&mut camera, &program_start);
 
         // compute the light intensities for each pixel

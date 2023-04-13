@@ -11,11 +11,6 @@ pub fn fps_cap(fps: u32, beginning_of_frame: &time::Instant) {
         std::thread::sleep(time::Duration::from_millis(time_till_new_frame_ms as u64));
     }
 }
-pub fn clear_screen(stdout: &mut std::io::Stdout) -> std::io::Result<()> {
-    stdout.execute(cursor::MoveTo(0, 0))?;
-    stdout.flush()?;
-    Ok(())
-}
 /// wrapper function for crossterm
 /// coordinates is a tuple of the form (row, column)
 pub fn print_to_screen(
