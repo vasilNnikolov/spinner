@@ -27,10 +27,19 @@ impl PP {
     }
 
     fn sdf_shaft(&self, position: &Vector) -> f32 {
-        let lower_plane = PP::sdf_plane(position, &Vector::zeros(), &(-1.0 * self.shaft_axis));
-        let upper_plane = PP::sdf_plane(position, &(2.5 * self.shaft_axis), &self.shaft_axis);
-        let r_relative =
-            *position - 0.2 * (self.shaft_axis.cross(&self.left_to_right_ball)).normalise();
+        let lower_plane = PP::sdf_plane(
+            position,
+            &(self.center + Vector::zeros()),
+            &(-1.0 * self.shaft_axis),
+        );
+        let upper_plane = PP::sdf_plane(
+            position,
+            &(self.center + 2.5 * self.shaft_axis),
+            &self.shaft_axis,
+        );
+        let r_relative = *position
+            - self.center
+            - 0.2 * (self.shaft_axis.cross(&self.left_to_right_ball)).normalise();
         let cylinder =
             (r_relative - (r_relative.dot(&self.shaft_axis)) * self.shaft_axis).norm() - 0.4;
 
@@ -39,7 +48,8 @@ impl PP {
 
     fn sdf_head(&self, position: &Vector) -> f32 {
         let head_center = 0.2 * (self.shaft_axis.cross(&self.left_to_right_ball)).normalise()
-            + 2.5 * self.shaft_axis;
+            + 2.5 * self.shaft_axis
+            + self.center;
         max!(
             PP::sdf_sphere(position, &head_center, 0.5),
             PP::sdf_plane(position, &head_center, &(-1.0 * self.shaft_axis))

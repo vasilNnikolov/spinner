@@ -11,7 +11,7 @@ mod terminal;
 use constants::*;
 use crossterm::{cursor, queue, style};
 use math::*;
-use objects::Rotatable;
+use objects::{Movable, Rotatable};
 use scene::*;
 use std::time;
 
@@ -21,7 +21,7 @@ fn move_camera(camera: &mut Camera, start_time: &time::Instant) {
     camera.position = vector!(
         9.0 * phase.sin(),
         7.0 * phase.cos(),
-        4.0 * (0.6 * phase).cos()
+        2.0 * (0.6 * phase).cos()
     );
     let column_1 = (-camera.position).normalise();
     let column_0 = column_1.cross(&vector!(0, 0, 1)).normalise();
@@ -52,6 +52,7 @@ fn main() -> std::io::Result<()> {
         &matrix_from_columns([vector!(0, 0, -1), vector!(0, 1, 0), vector!(1, 0, 0)]),
         &vector!(0, 0, 1.25),
     );
+    pp.move_object(&vector!(0, 0, -1.25));
     let program_start = time::Instant::now();
     queue!(
         stdout,
