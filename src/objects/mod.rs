@@ -20,6 +20,27 @@ pub trait Movable {
     }
 }
 pub trait Rotatable {
+    /// apply a rotation to the object relative to the `center_of_rotation` vector, which is in the world
+    /// coordinate system
+    /// for any fixed point of the object with radius-vector `r` and `r_1` after the
+    /// rotation, all relative to the center of the object, it is valid that `r_1 =
+    /// rotation_matrix * r`
+    fn rotate_around_center(&mut self, rotation_matrix: &Matrix, center_of_rotation: &Vector)
+    where
+        Self: rotatable_vectors_priv::RotatableVectors + Movable,
+    {
+        let old_center = *(self.get_center());
+        let new_center = center_of_rotation + rotation_matrix * (old_center - center_of_rotation);
+        self.move_object(&(new_center - old_center));
+
+        // borrow the vectors mutably
+        // rotate all of the vectors that define the orientation of the object usign the matrix
+        // provided
+        let rotatable_vectors = self.get_rotatable_vectors();
+        for rv in rotatable_vectors {
+            *rv = rotation_matrix * (*rv)
+        }
+    }
     /// apply a rotation to the object relative to its own center
     /// for any fixed point of the object with radius-vector `r` and `r_1` after the
     /// rotation, all relative to the center of the object, it is valid that `r_1 =

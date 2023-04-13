@@ -48,11 +48,10 @@ fn main() -> std::io::Result<()> {
     let mut camera = Camera::default();
     let mut screen_buffer = initialize_screen_buffer();
     let mut pp = objects::pp::PP::default();
-    pp.rotate(&matrix_from_columns([
-        vector!(0, 0, -1),
-        vector!(0, 1, 0),
-        vector!(1, 0, 0),
-    ]));
+    pp.rotate_around_center(
+        &matrix_from_columns([vector!(0, 0, -1), vector!(0, 1, 0), vector!(1, 0, 0)]),
+        &vector!(0, 0, 1.25),
+    );
     let program_start = time::Instant::now();
     queue!(
         stdout,
