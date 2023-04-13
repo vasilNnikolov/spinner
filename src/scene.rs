@@ -54,7 +54,7 @@ impl Camera {
                     .normalise(),
                 );
             } else {
-                ray_front = ray_front + (*direction) * distance;
+                ray_front += (*direction) * distance;
             }
         }
     }
@@ -71,7 +71,7 @@ impl Camera {
                 } else if index > n_chars as f32 - 1.0 {
                     return ascii_table[n_chars - 1];
                 }
-                return ascii_table[index as usize];
+                ascii_table[index as usize]
             }
             None => ' ',
         }

@@ -1,19 +1,16 @@
+pub mod dynamic_object_3D;
 pub mod plane;
 pub mod pp;
 pub mod sphere;
 
 use crate::math::*;
-pub struct DynamicObject3D {}
+
+/// a trait for all objects that have a signed distance function
 pub trait SDF {
     /// r: A vector starting at the "center" (however that may be defined) of the 3D object and going to the camera
     /// the function returns the distance between the camera and the object
     fn signed_distance_function(&self, r: &Vector) -> f32;
 }
-// fn union(object: Vec<impl SDF>) -> impl SDF
-// where
-// {
-//     pp::PP::default()
-// }
 
 pub trait Movable {
     /// returns the center of the object
@@ -74,3 +71,6 @@ mod rotatable_vectors_priv {
         fn get_rotatable_vectors(&mut self) -> Vec<&mut Vector>;
     }
 }
+
+/// a trait unifying everything a fully functional object is
+pub trait Object: SDF + Movable + Rotatable {}

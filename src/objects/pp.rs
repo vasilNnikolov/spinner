@@ -20,10 +20,10 @@ impl PP {
     fn sdf_balls(&self, position: &Vector) -> f32 {
         let left_center = self.center - self.left_to_right_ball / 2.0;
         let right_center = self.center + self.left_to_right_ball / 2.0;
-        return min!(
+        min!(
             PP::sdf_sphere(position, &left_center, 0.5),
             PP::sdf_sphere(position, &right_center, 0.5)
-        );
+        )
     }
 
     fn sdf_shaft(&self, position: &Vector) -> f32 {

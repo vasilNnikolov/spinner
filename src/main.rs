@@ -36,9 +36,9 @@ fn initialize_screen_buffer() -> [[char; WIDTH as usize]; HEIGHT as usize] {
         screen_buffer[0][i] = '-';
         screen_buffer[(HEIGHT - 1) as usize][i] = '-';
     }
-    for i in 0..HEIGHT as usize {
-        screen_buffer[i][0] = '|';
-        screen_buffer[i][(WIDTH - 1) as usize] = '|';
+    for buffer_row in screen_buffer.iter_mut().take(HEIGHT as usize) {
+        buffer_row[0] = '|';
+        buffer_row[(WIDTH - 1) as usize] = '|';
     }
     screen_buffer
 }
