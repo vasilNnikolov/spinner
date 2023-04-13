@@ -27,7 +27,7 @@ impl Camera {
     /// direction should be normalised
     fn compute_intersection(
         &self,
-        object: &impl objects::Object3D,
+        object: &impl objects::SDF,
         direction: &Vector,
     ) -> Option<Vector> {
         let mut ray_front = self.position;
@@ -59,11 +59,7 @@ impl Camera {
         }
     }
 
-    pub fn compute_light_intensity(
-        &self,
-        object: &impl objects::Object3D,
-        direction: &Vector,
-    ) -> char {
+    pub fn compute_light_intensity(&self, object: &impl objects::SDF, direction: &Vector) -> char {
         let ascii_table: Vec<char> = ",:;+*@%$#@".chars().collect();
         let n_chars = ascii_table.len();
         match self.compute_intersection(object, direction) {

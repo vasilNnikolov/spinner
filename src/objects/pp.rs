@@ -1,4 +1,4 @@
-use super::{Movable, Object3D, Rotatable};
+use super::{Movable, Rotatable, SDF};
 use crate::math::*;
 
 pub struct PP {
@@ -65,7 +65,7 @@ impl PP {
     }
 }
 
-impl Object3D for PP {
+impl SDF for PP {
     fn signed_distance_function(&self, position: &Vector) -> f32 {
         min!(
             self.sdf_balls(position),
