@@ -11,7 +11,7 @@ mod terminal;
 use constants::*;
 use crossterm::{cursor, queue, style};
 use math::*;
-use objects::{Movable, Rotatable};
+use objects::{SdfCentered, SdfMovable};
 use scene::*;
 use std::time;
 
@@ -48,6 +48,10 @@ fn main() -> std::io::Result<()> {
     let mut camera = Camera::default();
     let mut screen_buffer = initialize_screen_buffer();
     let mut pp = objects::pp::PP::default();
+    let pl = objects::plane::Plane {
+        r0: vector!(0, 0, 0),
+        n: vector!(1, 0, 0),
+    };
     pp.rotate_around_center(
         &matrix_from_columns([vector!(0, 0, -1), vector!(0, 1, 0), vector!(1, 0, 0)]),
         &vector!(0, 0, 1.25),
