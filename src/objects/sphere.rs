@@ -1,12 +1,22 @@
-use super::SDF;
+use super::{Object3D, OrientableMut, SDF_Centered};
 use crate::math::*;
-struct Sphere {
-    center: Vector,
-    radius: f32,
+pub struct Sphere {
+    pub center: Vector,
+    pub radius: f32,
 }
 
-impl SDF for Sphere {
-    fn get_sdf_clojure(&self) -> Fn(&Vector) -> f32 {
-        |r: &Vector| (*r - self.center).norm() - self.radius
+impl SDF_Centered for Sphere {
+    fn signed_distance_function_centered(&self, position: &Vector) -> f32 {
+        (*position).norm() - self.radius
     }
 }
+impl OrientableMut for Sphere {
+    fn get_center(&mut self) -> &mut Vector {
+        &mut self.center
+    }
+    /// return identity matrix since rotations on a sphere don't matter
+    fn get_orientation_matrix(&mut self) -> &mut Matrix {
+        &mut Matrix::identity()
+    }
+}
+impl Object3D for Sphere {}

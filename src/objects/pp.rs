@@ -1,4 +1,3 @@
-use super::{Movable, Rotatable, SDF};
 use crate::math::*;
 
 pub struct PP {
