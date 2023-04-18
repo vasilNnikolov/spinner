@@ -11,7 +11,7 @@ mod terminal;
 use constants::*;
 use crossterm::{cursor, queue, style};
 use math::*;
-use objects::{SdfCentered, SdfMovable};
+use objects::{plane, sphere, union, Object3D};
 use scene::*;
 use std::time;
 
@@ -47,16 +47,19 @@ fn main() -> std::io::Result<()> {
     let mut stdout = std::io::stdout();
     let mut camera = Camera::default();
     let mut screen_buffer = initialize_screen_buffer();
-    let mut pp = objects::pp::PP::default();
-    let pl = objects::plane::Plane {
-        r0: vector!(0, 0, 0),
-        n: vector!(1, 0, 0),
-    };
-    pp.rotate_around_center(
-        &matrix_from_columns([vector!(0, 0, -1), vector!(0, 1, 0), vector!(1, 0, 0)]),
-        &vector!(0, 0, 1.25),
-    );
-    pp.move_object(&vector!(0, 0, -1.25));
+    let sphere_1 = sphere::Sphere::new(vector!(1, 0, 0), 2.0);
+    let sphere_2 = sphere::Sphere::new(vector!(-1, 0, 0), 2.0);
+    let balls = union::Union::from_objects(vec![Box::new(sphere_1), Box::new(sphere_2)]);
+    // let mut pp = objects::pp::PP::default();
+    // let pl = objects::plane::Plane {
+    //     r0: vector!(0, 0, 0),
+    //     n: vector!(1, 0, 0),
+    // };
+    // pp.rotate_around_center(
+    //     &matrix_from_columns([vector!(0, 0, -1), vector!(0, 1, 0), vector!(1, 0, 0)]),
+    //     &vector!(0, 0, 1.25),
+    // );
+    // pp.move_object(&vector!(0, 0, -1.25));
     let program_start = time::Instant::now();
     queue!(
         stdout,
@@ -70,7 +73,7 @@ fn main() -> std::io::Result<()> {
         for row in 1..HEIGHT - 1 {
             for col in 1..WIDTH - 1 {
                 let cam_ray = camera.get_ray_from_camera(row, col);
-                let char_to_place = camera.compute_light_intensity(&pp, &cam_ray);
+                let char_to_place = camera.compute_light_intensity(&balls, &cam_ray);
 
                 screen_buffer[row as usize][col as usize] = char_to_place;
             }

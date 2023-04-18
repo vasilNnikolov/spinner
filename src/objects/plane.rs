@@ -1,4 +1,4 @@
-use super::{Object3D, OrientableMut, SDF_Centered};
+use super::{Object3D, Orientable, OrientableMut, SDF_Centered};
 use crate::math::*;
 pub struct Plane {
     /// `r0` is a point on the plane, and serves as its center
@@ -15,10 +15,18 @@ impl SDF_Centered for Plane {
 }
 
 impl OrientableMut for Plane {
-    fn get_center(&mut self) -> &mut Vector {
+    fn get_center_mut(&mut self) -> &mut Vector {
         &mut self.r0
     }
-    fn get_orientation_matrix(&mut self) -> &mut Matrix {
+    fn get_orientation_matrix_mut(&mut self) -> &mut Matrix {
         &mut self.orientation_matrix
+    }
+}
+impl Orientable for Plane {
+    fn get_center(&self) -> &Vector {
+        &self.r0
+    }
+    fn get_orientation_matrix(&self) -> &Matrix {
+        &self.orientation_matrix
     }
 }

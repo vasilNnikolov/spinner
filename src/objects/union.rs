@@ -5,9 +5,8 @@ pub struct Union {
 }
 
 impl Union {
-    fn from_objects(objects: &Vec<Box<dyn Object3D>>) -> Union {
-        // TODO implement
-        Union { objects: vec![] }
+    pub fn from_objects(objects: Vec<Box<dyn Object3D>>) -> Union {
+        Union { objects }
     }
 }
 
@@ -15,8 +14,8 @@ impl Object3D for Union {
     fn signed_distance_function(&self, position: &Vector) -> f32 {
         self.objects
             .iter()
-            .map(|&obj| obj.signed_distance_function(position))
-            .max_by(|x, y| x.partial_cmp(&y).unwrap())
+            .map(|obj| obj.signed_distance_function(position))
+            .min_by(|x, y| x.partial_cmp(&y).unwrap())
             .unwrap()
     }
 }
