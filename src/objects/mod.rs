@@ -1,5 +1,6 @@
 pub mod plane;
 // pub mod pp;
+pub mod intersection;
 pub mod sphere;
 pub mod union;
 
@@ -19,7 +20,7 @@ pub trait Orientable {
 #[allow(non_camel_case_types)]
 pub trait SDF_Centered {
     /// the SDF of the object when it is centered and its intrinsic axis coincide with the world
-    /// axis
+    /// axis.
     fn signed_distance_function_centered(&self, position: &Vector) -> f32;
 }
 

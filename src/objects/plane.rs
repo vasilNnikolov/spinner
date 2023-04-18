@@ -7,6 +7,17 @@ pub struct Plane {
     n: Vector,
     orientation_matrix: Matrix,
 }
+impl Plane {
+    /// `r0` is a vector that belongs to the plane, and `n` is a vector perpendicular to it. `n`
+    /// points away from the filled part of the plane, i.e. in the empty half-world
+    pub fn new(r0: Vector, n: Vector) -> Plane {
+        Plane {
+            r0,
+            n,
+            orientation_matrix: Matrix::identity(),
+        }
+    }
+}
 
 impl SDF_Centered for Plane {
     fn signed_distance_function_centered(&self, position: &Vector) -> f32 {
