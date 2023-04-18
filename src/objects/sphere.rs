@@ -19,4 +19,3 @@ impl OrientableMut for Sphere {
         &mut Matrix::identity()
     }
 }
-impl Object3D for Sphere {}
