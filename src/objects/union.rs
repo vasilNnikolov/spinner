@@ -19,6 +19,11 @@ impl Orientable for Union {
     }
 }
 
+// impl OrientableMut for Union {
+//     fn get_center_mut(&mut self) -> &mut Vector {}
+//     fn get_orientation_matrix_mut(&mut self) -> &mut Matrix;
+// }
+
 impl Object3D for Union {
     fn signed_distance_function(&self, position: &Vector) -> f32 {
         self.objects

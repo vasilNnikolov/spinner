@@ -52,27 +52,27 @@ mod test_math {
         assert!(A * A == 2 as f32 * A)
     }
 }
-macro_rules! min {
-    ($x:expr) => ($x);
-    ($x:expr, $($y:expr),+) => {{
-        let a = min!($($y),+);
-        if a < $x {
-            a
-        } else {
-            $x
-        }
-    }};
-}
+// macro_rules! min {
+//     ($x:expr) => ($x);
+//     ($x:expr, $($y:expr),+) => {{
+//         let a = min!($($y),+);
+//         if a < $x {
+//             a
+//         } else {
+//             $x
+//         }
+//     }};
+// }
 
-macro_rules! max {
-    ($x:expr) => ($x);
-    ($x:expr, $($y:expr),+) => {{
-        let a = max!($($y),+);
-        if a > $x {
-            a
-        } else {
-            $x
-        }
-    }};
-}
-pub(crate) use {max, min};
+// macro_rules! max {
+//     ($x:expr) => ($x);
+//     ($x:expr, $($y:expr),+) => {{
+//         let a = max!($($y),+);
+//         if a > $x {
+//             a
+//         } else {
+//             $x
+//         }
+//     }};
+// }
+// pub(crate) use {max, min};

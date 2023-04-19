@@ -12,15 +12,23 @@ pub trait OrientableMut {
     fn get_orientation_matrix_mut(&mut self) -> &mut Matrix;
 }
 
+pub trait Movable: OrientableMut {
+    /// move the object without rotation. Moving a compound object moves all the objects the
+    /// compound one is made of
+    fn move_object(&mut self, translation_vector: &Vector) {
+        *(self.get_center_mut()) += *translation_vector;
+    }
+}
+
 pub trait Orientable {
     fn get_center(&self) -> &Vector;
     fn get_orientation_matrix(&self) -> &Matrix;
 }
 
 #[allow(non_camel_case_types)]
+/// the SDF of the object when it is centered and its intrinsic axis coincide with the world
+/// axis. This has to be implemented on basic objects (i.e. not compound ones)
 pub trait SDF_Centered {
-    /// the SDF of the object when it is centered and its intrinsic axis coincide with the world
-    /// axis.
     fn signed_distance_function_centered(&self, position: &Vector) -> f32;
 }
 

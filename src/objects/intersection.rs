@@ -27,10 +27,3 @@ impl Object3D for Intersection {
             .unwrap()
     }
 }
-
-// impl Orientable for Intersection {
-//     fn get_center(&self) -> &Vector {
-//         *(self.objects[0]).get_center()
-//     }
-//     // fn get_orientation_matrix(&self) -> &Matrix;
-// }
