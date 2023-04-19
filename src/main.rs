@@ -11,7 +11,7 @@ mod terminal;
 use constants::*;
 use crossterm::{cursor, queue, style};
 use math::*;
-use objects::{plane, sphere, union, Object3D};
+use objects::{intersection, plane, sphere, union, Object3D};
 use scene::*;
 use std::time;
 
@@ -49,7 +49,8 @@ fn main() -> std::io::Result<()> {
     let mut screen_buffer = initialize_screen_buffer();
     let sphere_1 = sphere::Sphere::new(vector!(1, 0, 0), 2.0);
     let sphere_2 = sphere::Sphere::new(vector!(-1, 0, 0), 2.0);
-    let balls = union::Union::from_objects(vec![Box::new(sphere_1), Box::new(sphere_2)]);
+    let balls =
+        intersection::Intersection::from_objects(vec![Box::new(sphere_1), Box::new(sphere_2)]);
     // let mut pp = objects::pp::PP::default();
     // let pl = objects::plane::Plane {
     //     r0: vector!(0, 0, 0),
