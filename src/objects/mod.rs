@@ -25,7 +25,7 @@ pub trait SDF_Centered {
 }
 
 /// All objects, both single and compound, should implement this trait
-pub trait Object3D {
+pub trait Object3D: Orientable {
     fn signed_distance_function(&self, position: &Vector) -> f32;
 }
 

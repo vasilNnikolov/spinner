@@ -1,4 +1,4 @@
-use super::Object3D;
+use super::*;
 use crate::math::*;
 pub struct Union {
     objects: Vec<Box<dyn Object3D>>,
@@ -7,6 +7,15 @@ pub struct Union {
 impl Union {
     pub fn from_objects(objects: Vec<Box<dyn Object3D>>) -> Union {
         Union { objects }
+    }
+}
+
+impl Orientable for Union {
+    fn get_center(&self) -> &Vector {
+        self.objects[0].get_center()
+    }
+    fn get_orientation_matrix(&self) -> &Matrix {
+        self.objects[0].get_orientation_matrix()
     }
 }
 

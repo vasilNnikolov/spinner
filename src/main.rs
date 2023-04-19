@@ -11,7 +11,7 @@ mod terminal;
 use constants::*;
 use crossterm::{cursor, queue, style};
 use math::*;
-use objects::{intersection, plane, sphere, union, Object3D};
+use objects::*;
 use scene::*;
 use std::time;
 
