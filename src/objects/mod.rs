@@ -1,6 +1,6 @@
-pub mod plane;
-// pub mod pp;
 pub mod intersection;
+pub mod plane;
+pub mod pp;
 pub mod sphere;
 pub mod union;
 
