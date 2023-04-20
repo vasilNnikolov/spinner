@@ -71,7 +71,7 @@ fn main() -> std::io::Result<()> {
             .duration_since(program_start)
             .as_millis() as f32;
         let phase = (time_since_start_ms) / 1000.0;
-        let dx = 0.03 * phase.cos();
+        let dx = 0.02 * phase.cos();
         object.move_object(&vector!(-dx, 0, dx));
         object.set_orientation_matrix(&matrix_from_columns([
             vector!(phase.cos(), phase.sin(), 0),
