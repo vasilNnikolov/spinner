@@ -26,7 +26,7 @@ impl Orientable for Sphere {
         &self.center
     }
     /// return identity matrix since rotations on a sphere don't matter
-    fn get_orientation_matrix(&self) -> &Matrix {
+    fn get_inverse_orientation_matrix(&self) -> &Matrix {
         &self.orientation_matrix
     }
 }
@@ -34,7 +34,7 @@ impl OrientableMut for Sphere {
     fn get_center_mut(&mut self) -> &mut Vector {
         &mut self.center
     }
-    fn get_orientation_matrix_mut(&mut self) -> &mut Matrix {
+    fn get_inverse_orientation_matrix_mut(&mut self) -> &mut Matrix {
         &mut self.orientation_matrix
     }
 }

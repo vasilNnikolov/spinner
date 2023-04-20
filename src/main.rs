@@ -65,13 +65,19 @@ fn main() -> std::io::Result<()> {
         crossterm::terminal::Clear(crossterm::terminal::ClearType::All)
     )?;
     loop {
-        let s_time = time::Instant::now();
+        let frame_start_time = time::Instant::now();
 
         let time_since_start_ms = time::Instant::now()
             .duration_since(program_start)
             .as_millis() as f32;
-        let dx = 0.03 * ((time_since_start_ms) / 1000.0).cos();
-        object.move_object(&vector!(0, 0, dx));
+        let phase = (time_since_start_ms) / 1000.0;
+        let dx = 0.03 * phase.cos();
+        object.move_object(&vector!(-dx, 0, dx));
+        object.set_orientation_matrix(&matrix_from_columns([
+            vector!(phase.cos(), phase.sin(), 0),
+            vector!(-phase.sin(), phase.cos(), 0),
+            vector!(0, 0, 1.0),
+        ]));
 
         // compute the light intensities for each pixel
         for row in 1..HEIGHT - 1 {
@@ -98,10 +104,10 @@ fn main() -> std::io::Result<()> {
             (HEIGHT as u16, 0),
             &format!(
                 "FPS STATISTICS:\n    Time to render: {} ms \n    Time to draw: {} ms",
-                end_of_render.duration_since(s_time).as_millis(),
+                end_of_render.duration_since(frame_start_time).as_millis(),
                 end_of_render.elapsed().as_millis()
             ),
         )?;
-        terminal::fps_cap(15, &s_time);
+        terminal::fps_cap(60, &frame_start_time);
     }
 }

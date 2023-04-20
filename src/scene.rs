@@ -84,7 +84,7 @@ impl Camera {
     pub fn default() -> Camera {
         Camera {
             matrix: Matrix::identity(),
-            position: -8.0 * vector!(0, 1, 0),
+            position: -10.0 * vector!(0, 1, 0),
         }
     }
 }

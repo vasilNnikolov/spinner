@@ -20,7 +20,7 @@ impl Orientable for Intersection {
     fn get_center(&self) -> &Vector {
         &self.center
     }
-    fn get_orientation_matrix(&self) -> &Matrix {
+    fn get_inverse_orientation_matrix(&self) -> &Matrix {
         &self.orientation_matrix
     }
 }
@@ -28,7 +28,7 @@ impl OrientableMut for Intersection {
     fn get_center_mut(&mut self) -> &mut Vector {
         &mut self.center
     }
-    fn get_orientation_matrix_mut(&mut self) -> &mut Matrix {
+    fn get_inverse_orientation_matrix_mut(&mut self) -> &mut Matrix {
         &mut self.orientation_matrix
     }
 }
