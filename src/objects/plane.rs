@@ -41,3 +41,5 @@ impl Orientable for Plane {
         &self.orientation_matrix
     }
 }
+
+impl Object3D for Plane {}

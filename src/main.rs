@@ -11,7 +11,7 @@ mod terminal;
 use constants::*;
 use crossterm::{cursor, queue, style};
 use math::*;
-use objects::*;
+use objects::{intersection::Intersection, union::Union, *};
 use scene::*;
 use std::time;
 
@@ -43,24 +43,22 @@ fn initialize_screen_buffer() -> [[char; WIDTH as usize]; HEIGHT as usize] {
     screen_buffer
 }
 
-fn main() -> std::io::Result<()> {
-    let mut stdout = std::io::stdout();
-    let mut camera = Camera::default();
-    let mut screen_buffer = initialize_screen_buffer();
+fn define_scene() -> impl Object3D {
     let sphere_1 = sphere::Sphere::new(vector!(1, 0, 0), 2.0);
     let sphere_2 = sphere::Sphere::new(vector!(-1, 0, 0), 2.0);
-    let balls =
-        intersection::Intersection::from_objects(vec![Box::new(sphere_1), Box::new(sphere_2)]);
-    // let mut pp = objects::pp::PP::default();
-    // let pl = objects::plane::Plane {
-    //     r0: vector!(0, 0, 0),
-    //     n: vector!(1, 0, 0),
-    // };
-    // pp.rotate_around_center(
-    //     &matrix_from_columns([vector!(0, 0, -1), vector!(0, 1, 0), vector!(1, 0, 0)]),
-    //     &vector!(0, 0, 1.25),
-    // );
-    // pp.move_object(&vector!(0, 0, -1.25));
+    let balls = Union::from_objects(vec![Box::new(sphere_1), Box::new(sphere_2)]);
+    Intersection::from_objects(vec![
+        Box::new(balls),
+        Box::new(plane::Plane::new(vector!(0, 0, 0), vector!(0, 0, 1))),
+    ])
+}
+
+fn main() -> std::io::Result<()> {
+    let mut stdout = std::io::stdout();
+    let camera = Camera::default();
+    let mut screen_buffer = initialize_screen_buffer();
+    // define the scene to be rendered
+    let mut object = define_scene();
     let program_start = time::Instant::now();
     queue!(
         stdout,
@@ -68,13 +66,18 @@ fn main() -> std::io::Result<()> {
     )?;
     loop {
         let s_time = time::Instant::now();
-        move_camera(&mut camera, &program_start);
+
+        let time_since_start_ms = time::Instant::now()
+            .duration_since(program_start)
+            .as_millis() as f32;
+        let dx = 0.03 * ((time_since_start_ms) / 1000.0).cos();
+        object.move_object(&vector!(0, 0, dx));
 
         // compute the light intensities for each pixel
         for row in 1..HEIGHT - 1 {
             for col in 1..WIDTH - 1 {
                 let cam_ray = camera.get_ray_from_camera(row, col);
-                let char_to_place = camera.compute_light_intensity(&balls, &cam_ray);
+                let char_to_place = camera.compute_light_intensity(&object, &cam_ray);
 
                 screen_buffer[row as usize][col as usize] = char_to_place;
             }
