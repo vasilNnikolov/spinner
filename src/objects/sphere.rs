@@ -38,4 +38,3 @@ impl OrientableMut for Sphere {
         &mut self.orientation_matrix
     }
 }
-impl Object3D for Sphere {}

@@ -12,18 +12,12 @@ pub trait OrientableMut {
     fn get_orientation_matrix_mut(&mut self) -> &mut Matrix;
 }
 
-pub trait Movable {
-    fn move_object(&mut self, translation_vector: &Vector);
-}
-
-impl<T> Movable for T
-where
-    T: OrientableMut,
-{
+pub trait Movable: OrientableMut {
     fn move_object(&mut self, translation_vector: &Vector) {
         *(self.get_center_mut()) += *translation_vector;
     }
 }
+impl<T> Movable for T where T: OrientableMut {}
 
 pub trait Orientable {
     fn get_center(&self) -> &Vector;
@@ -45,3 +39,4 @@ pub trait Object3D: SDF_Centered + Orientable + OrientableMut {
         )
     }
 }
+impl<T> Object3D for T where T: SDF_Centered + Orientable + OrientableMut {}

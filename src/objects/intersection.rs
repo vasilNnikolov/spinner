@@ -42,4 +42,3 @@ impl SDF_Centered for Intersection {
             .unwrap()
     }
 }
-impl Object3D for Intersection {}

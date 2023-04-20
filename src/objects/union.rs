@@ -42,4 +42,3 @@ impl SDF_Centered for Union {
             .unwrap()
     }
 }
-impl Object3D for Union {}
