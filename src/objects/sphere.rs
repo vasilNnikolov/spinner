@@ -1,4 +1,4 @@
-use super::{Object3D, Orientable, OrientableMut, SDF_Centered};
+use super::*;
 use crate::math::*;
 pub struct Sphere {
     center: Vector,
@@ -38,3 +38,4 @@ impl OrientableMut for Sphere {
         &mut self.orientation_matrix
     }
 }
+impl Movable for Sphere {}

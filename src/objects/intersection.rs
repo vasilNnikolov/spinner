@@ -27,3 +27,4 @@ impl Object3D for Intersection {
             .unwrap()
     }
 }
+impl Movable for Intersection {}

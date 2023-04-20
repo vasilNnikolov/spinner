@@ -12,9 +12,16 @@ pub trait OrientableMut {
     fn get_orientation_matrix_mut(&mut self) -> &mut Matrix;
 }
 
-pub trait Movable: OrientableMut {
+pub trait Movable {
     /// move the object without rotation. Moving a compound object moves all the objects the
     /// compound one is made of
+    fn move_object(&mut self, translation_vector: &Vector);
+}
+
+impl<T> Movable for T
+where
+    T: OrientableMut,
+{
     fn move_object(&mut self, translation_vector: &Vector) {
         *(self.get_center_mut()) += *translation_vector;
     }
