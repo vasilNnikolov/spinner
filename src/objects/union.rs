@@ -3,7 +3,7 @@ use crate::math::*;
 pub struct Union {
     objects: Vec<Box<dyn Object3D>>,
     center: Vector,
-    orientation_matrix: Matrix,
+    inverse_orientation_matrix: Matrix,
 }
 
 impl Union {
@@ -11,7 +11,7 @@ impl Union {
         Union {
             objects,
             center: vector!(0, 0, 0),
-            orientation_matrix: Matrix::identity(),
+            inverse_orientation_matrix: Matrix::identity(),
         }
     }
 }
@@ -21,7 +21,7 @@ impl Orientable for Union {
         &self.center
     }
     fn get_inverse_orientation_matrix(&self) -> &Matrix {
-        &self.orientation_matrix
+        &self.inverse_orientation_matrix
     }
 }
 impl OrientableMut for Union {
@@ -29,7 +29,7 @@ impl OrientableMut for Union {
         &mut self.center
     }
     fn get_inverse_orientation_matrix_mut(&mut self) -> &mut Matrix {
-        &mut self.orientation_matrix
+        &mut self.inverse_orientation_matrix
     }
 }
 

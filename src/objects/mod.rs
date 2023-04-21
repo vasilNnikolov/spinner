@@ -1,6 +1,7 @@
 pub mod intersection;
 pub mod plane;
-pub mod pp;
+// pub mod pp;
+pub mod cylinder;
 pub mod sphere;
 pub mod union;
 
@@ -20,6 +21,7 @@ pub trait Movable: OrientableMut {
         *(self.get_inverse_orientation_matrix_mut()) = (*transformation).try_inverse().unwrap();
     }
 }
+/// implement `Movable` for all structs that are `OrientableMut`
 impl<T> Movable for T where T: OrientableMut {}
 
 pub trait Orientable {
@@ -42,4 +44,5 @@ pub trait Object3D: SDF_Centered + Orientable + OrientableMut {
         )
     }
 }
+/// impl `Object3D` for every struct eligible
 impl<T> Object3D for T where T: SDF_Centered + Orientable + OrientableMut {}
