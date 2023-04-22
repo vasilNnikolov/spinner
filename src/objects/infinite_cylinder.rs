@@ -7,7 +7,7 @@ pub struct InfiniteCylinder {
     inverse_orientation_matrix: Matrix,
 }
 
-impl Cylinder {
+impl InfiniteCylinder {
     /// `center` is the center of mass of the cylinder. Therefore, the center point of the upper
     /// base would be `center+0.5*height*shaft_axis/shaft_axis.norm()`
     pub fn new(center: Vector, radius: f32, shaft_axis: Vector) -> InfiniteCylinder {
@@ -20,12 +20,15 @@ impl Cylinder {
     }
 }
 
-impl SDF_Centered for Cylinder {
+impl SDF_Centered for InfiniteCylinder {
     fn signed_distance_function_centered(&self, position: &Vector) -> f32 {
-        (*position)
+        (*position
+            - position.dot(&self.shaft_axis) / self.shaft_axis.norm_squared() * self.shaft_axis)
+            .norm()
+            - self.radius
     }
 }
-impl Orientable for Sphere {
+impl Orientable for InfiniteCylinder {
     fn get_center(&self) -> &Vector {
         &self.center
     }
@@ -34,7 +37,7 @@ impl Orientable for Sphere {
         &self.inverse_orientation_matrix
     }
 }
-impl OrientableMut for Sphere {
+impl OrientableMut for InfiniteCylinder {
     fn get_center_mut(&mut self) -> &mut Vector {
         &mut self.center
     }
@@ -42,20 +45,3 @@ impl OrientableMut for Sphere {
         &mut self.inverse_orientation_matrix
     }
 }
-//     let lower_plane = PP::sdf_plane(
-//         position,
-//         &(self.center + Vector::zeros()),
-//         &(-1.0 * self.shaft_axis),
-//     );
-//     let upper_plane = PP::sdf_plane(
-//         position,
-//         &(self.center + 2.5 * self.shaft_axis),
-//         &self.shaft_axis,
-//     );
-//     let r_relative = *position
-//         - self.center
-//         - 0.2 * (self.shaft_axis.cross(&self.left_to_right_ball)).normalise();
-//     let cylinder =
-//         (r_relative - (r_relative.dot(&self.shaft_axis)) * self.shaft_axis).norm() - 0.4;
-
-//     max!(lower_plane, upper_plane, cylinder)
