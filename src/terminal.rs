@@ -39,3 +39,10 @@ pub fn initialize_screen_buffer() -> [[char; WIDTH as usize]; HEIGHT as usize] {
     }
     screen_buffer
 }
+pub fn clear_screen(stdout: &mut std::io::Stdout) -> std::io::Result<()> {
+    queue!(
+        stdout,
+        crossterm::terminal::Clear(crossterm::terminal::ClearType::All)
+    )?;
+    Ok(())
+}

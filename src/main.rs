@@ -9,7 +9,6 @@ mod prelude;
 mod scene;
 mod terminal;
 
-use crossterm::{cursor, queue, style};
 use prelude::*;
 use std::time;
 
@@ -42,6 +41,20 @@ fn define_scene() -> impl Object3D {
     ])
 }
 
+fn transform_scene(scene: &mut impl Object3D, program_start: &time::Instant) {
+    let time_since_start_ms = time::Instant::now()
+        .duration_since(*program_start)
+        .as_millis() as f32;
+    let phase = (time_since_start_ms) / 1000.0;
+    let dx = 0.02 * phase.cos();
+    scene.move_object(&vector!(-dx, 0, dx));
+    scene.set_orientation_matrix(&matrix_from_columns([
+        vector!(phase.cos(), phase.sin(), 0),
+        vector!(-phase.sin(), phase.cos(), 0),
+        vector!(0, 0, 1.0),
+    ]));
+}
+
 fn main() -> std::io::Result<()> {
     let mut stdout = std::io::stdout();
     let camera = Camera::default();
@@ -49,24 +62,12 @@ fn main() -> std::io::Result<()> {
     // define the scene to be rendered
     let mut object = define_scene();
     let program_start = time::Instant::now();
-    queue!(
-        stdout,
-        crossterm::terminal::Clear(crossterm::terminal::ClearType::All)
-    )?;
+    terminal::clear_screen(&mut stdout)?;
     loop {
         let frame_start_time = time::Instant::now();
 
-        let time_since_start_ms = time::Instant::now()
-            .duration_since(program_start)
-            .as_millis() as f32;
-        let phase = (time_since_start_ms) / 1000.0;
-        let dx = 0.02 * phase.cos();
-        object.move_object(&vector!(-dx, 0, dx));
-        object.set_orientation_matrix(&matrix_from_columns([
-            vector!(phase.cos(), phase.sin(), 0),
-            vector!(-phase.sin(), phase.cos(), 0),
-            vector!(0, 0, 1.0),
-        ]));
+        // movement of the scene
+        transform_scene(&mut object, &program_start);
 
         // compute the light intensities for each pixel
         for row in 1..HEIGHT - 1 {
