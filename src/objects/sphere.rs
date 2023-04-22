@@ -1,9 +1,9 @@
-use super::{Object3D, Orientable, OrientableMut, SDF_Centered};
+use super::*;
 use crate::math::*;
 pub struct Sphere {
     center: Vector,
     radius: f32,
-    orientation_matrix: Matrix,
+    inverse_orientation_matrix: Matrix,
 }
 
 impl Sphere {
@@ -11,7 +11,7 @@ impl Sphere {
         Sphere {
             center,
             radius,
-            orientation_matrix: Matrix::identity(),
+            inverse_orientation_matrix: Matrix::identity(),
         }
     }
 }
@@ -26,15 +26,15 @@ impl Orientable for Sphere {
         &self.center
     }
     /// return identity matrix since rotations on a sphere don't matter
-    fn get_orientation_matrix(&self) -> &Matrix {
-        &self.orientation_matrix
+    fn get_inverse_orientation_matrix(&self) -> &Matrix {
+        &self.inverse_orientation_matrix
     }
 }
 impl OrientableMut for Sphere {
     fn get_center_mut(&mut self) -> &mut Vector {
         &mut self.center
     }
-    fn get_orientation_matrix_mut(&mut self) -> &mut Matrix {
-        &mut self.orientation_matrix
+    fn get_inverse_orientation_matrix_mut(&mut self) -> &mut Matrix {
+        &mut self.inverse_orientation_matrix
     }
 }

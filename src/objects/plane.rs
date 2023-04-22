@@ -5,7 +5,7 @@ pub struct Plane {
     r0: Vector,
     /// n is a normal vector, pointing in the direction of empty space
     n: Vector,
-    orientation_matrix: Matrix,
+    inverse_orientation_matrix: Matrix,
 }
 impl Plane {
     /// `r0` is a vector that belongs to the plane, and `n` is a vector perpendicular to it. `n`
@@ -14,7 +14,7 @@ impl Plane {
         Plane {
             r0,
             n,
-            orientation_matrix: Matrix::identity(),
+            inverse_orientation_matrix: Matrix::identity(),
         }
     }
 }
@@ -29,15 +29,15 @@ impl OrientableMut for Plane {
     fn get_center_mut(&mut self) -> &mut Vector {
         &mut self.r0
     }
-    fn get_orientation_matrix_mut(&mut self) -> &mut Matrix {
-        &mut self.orientation_matrix
+    fn get_inverse_orientation_matrix_mut(&mut self) -> &mut Matrix {
+        &mut self.inverse_orientation_matrix
     }
 }
 impl Orientable for Plane {
     fn get_center(&self) -> &Vector {
         &self.r0
     }
-    fn get_orientation_matrix(&self) -> &Matrix {
-        &self.orientation_matrix
+    fn get_inverse_orientation_matrix(&self) -> &Matrix {
+        &self.inverse_orientation_matrix
     }
 }
