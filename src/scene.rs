@@ -1,8 +1,8 @@
 use crate::constants::*;
 use crate::math::*;
 use crate::objects;
-const MAX_DISTANCE: f32 = 20.0;
 const MIN_DISTANCE: f32 = 0.003;
+const MAX_DISTANCE_FROM_CAMERA: f32 = 50.0;
 
 pub struct Camera {
     /// camera position in outside world coordinates
@@ -23,7 +23,7 @@ impl Camera {
         (self.matrix * ray_camera_reference_frame).normalise()
     }
     /// computes the normal vector to the surface which intersects the direction vector, or
-    /// returns none if no intersection
+    /// returns none if no intersection or the camera is inside the object itself
     /// direction should be normalised
     fn compute_intersection(
         &self,
@@ -31,17 +31,21 @@ impl Camera {
         direction: &Vector,
     ) -> Option<Vector> {
         let mut ray_front = self.position;
-        loop {
-            let distance = object.signed_distance_function(&ray_front);
-
-            if distance > MAX_DISTANCE {
-                return None;
-            } else if distance < MIN_DISTANCE {
+        let mut distance = object.signed_distance_function(&ray_front);
+        // we are inside the object
+        if distance < 0.0 {
+            return None;
+        }
+        // if we are not inside the object alreay, there is no way to enter it with a properly
+        // defined SDF
+        for _ in 0..MAX_ITERATIONS {
+            if distance < MIN_DISTANCE {
                 let (dx, dy, dz) = (
-                    MIN_DISTANCE * vector!(1, 0, 0),
-                    MIN_DISTANCE * vector!(0, 1, 0),
-                    MIN_DISTANCE * vector!(0, 0, 1),
+                    MIN_DISTANCE * vector!(0.1, 0, 0),
+                    MIN_DISTANCE * vector!(0, 0.1, 0),
+                    MIN_DISTANCE * vector!(0, 0, 0.1),
                 );
+                // return the normal vector to the surface
                 return Some(
                     vector!(
                         (object.signed_distance_function(&(ray_front + dx)) - distance)
@@ -54,9 +58,16 @@ impl Camera {
                     .normalise(),
                 );
             } else {
+                // do the marching
                 ray_front += (*direction) * distance;
             }
+            // we are too far from the camera
+            if (ray_front - self.position).norm() > MAX_DISTANCE_FROM_CAMERA {
+                return None;
+            }
+            distance = object.signed_distance_function(&ray_front);
         }
+        None
     }
 
     pub fn compute_light_intensity(
