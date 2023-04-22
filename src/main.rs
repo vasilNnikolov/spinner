@@ -50,6 +50,11 @@ fn define_scene() -> impl Object3D {
     Intersection::from_objects(vec![
         Box::new(balls),
         Box::new(plane::Plane::new(vector!(0, 0, 0), vector!(0, 0, 1))),
+        Box::new(infinite_cylinder::InfiniteCylinder::new(
+            vector!(1, 0, 0),
+            1.8,
+            vector!(0, 1, 0),
+        )),
     ])
 }
 

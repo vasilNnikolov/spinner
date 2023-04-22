@@ -1,7 +1,7 @@
 pub mod intersection;
 pub mod plane;
 // pub mod pp;
-pub mod cylinder;
+pub mod infinite_cylinder;
 pub mod sphere;
 pub mod union;
 
