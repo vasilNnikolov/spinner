@@ -29,7 +29,7 @@ impl Object3D for Union {
         self.objects
             .iter()
             .map(|obj| obj.signed_distance_function(position))
-            .min_by(|x, y| x.partial_cmp(&y).unwrap())
+            .min_by(|x, y| x.partial_cmp(y).unwrap())
             .unwrap()
     }
 }

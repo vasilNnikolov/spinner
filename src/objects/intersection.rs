@@ -23,7 +23,7 @@ impl Object3D for Intersection {
         self.objects
             .iter()
             .map(|obj| obj.signed_distance_function(position))
-            .max_by(|x, y| x.partial_cmp(&y).unwrap())
+            .max_by(|x, y| x.partial_cmp(y).unwrap())
             .unwrap()
     }
 }
