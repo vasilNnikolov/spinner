@@ -5,14 +5,12 @@
 mod constants;
 mod math;
 mod objects;
+mod prelude;
 mod scene;
 mod terminal;
 
-use constants::*;
 use crossterm::{cursor, queue, style};
-use math::*;
-use objects::{intersection::Intersection, union::Union, *};
-use scene::*;
+use prelude::*;
 use std::time;
 
 fn move_camera(camera: &mut Camera, start_time: &time::Instant) {
@@ -27,20 +25,6 @@ fn move_camera(camera: &mut Camera, start_time: &time::Instant) {
     let column_0 = column_1.cross(&vector!(0, 0, 1)).normalise();
     let column_2 = column_0.cross(&column_1);
     camera.matrix = matrix_from_columns([column_0, column_1, column_2]);
-}
-
-/// draws the border of the screen buffer
-fn initialize_screen_buffer() -> [[char; WIDTH as usize]; HEIGHT as usize] {
-    let mut screen_buffer = [[' '; WIDTH as usize]; HEIGHT as usize];
-    for i in 0..WIDTH as usize {
-        screen_buffer[0][i] = '-';
-        screen_buffer[(HEIGHT - 1) as usize][i] = '-';
-    }
-    for buffer_row in screen_buffer.iter_mut().take(HEIGHT as usize) {
-        buffer_row[0] = '|';
-        buffer_row[(WIDTH - 1) as usize] = '|';
-    }
-    screen_buffer
 }
 
 fn define_scene() -> impl Object3D {
@@ -61,7 +45,7 @@ fn define_scene() -> impl Object3D {
 fn main() -> std::io::Result<()> {
     let mut stdout = std::io::stdout();
     let camera = Camera::default();
-    let mut screen_buffer = initialize_screen_buffer();
+    let mut screen_buffer = terminal::initialize_screen_buffer();
     // define the scene to be rendered
     let mut object = define_scene();
     let program_start = time::Instant::now();

@@ -1,6 +1,7 @@
-use crate::constants::*;
-use crate::math::*;
-use crate::objects;
+// use crate::constants::*;
+// use crate::math::*;
+// use crate::objects;
+use crate::prelude::*;
 const MIN_DISTANCE: f32 = 0.003;
 const MAX_DISTANCE_FROM_CAMERA: f32 = 50.0;
 
@@ -25,11 +26,7 @@ impl Camera {
     /// computes the normal vector to the surface which intersects the direction vector, or
     /// returns none if no intersection or the camera is inside the object itself
     /// direction should be normalised
-    fn compute_intersection(
-        &self,
-        object: &impl objects::Object3D,
-        direction: &Vector,
-    ) -> Option<Vector> {
+    fn compute_intersection(&self, object: &impl Object3D, direction: &Vector) -> Option<Vector> {
         let mut ray_front = self.position;
         let mut distance = object.signed_distance_function(&ray_front);
         // we are inside the object
@@ -70,11 +67,7 @@ impl Camera {
         None
     }
 
-    pub fn compute_light_intensity(
-        &self,
-        object: &impl objects::Object3D,
-        direction: &Vector,
-    ) -> char {
+    pub fn compute_light_intensity(&self, object: &impl Object3D, direction: &Vector) -> char {
         let ascii_table: Vec<char> = ",:;+*@%$#@".chars().collect();
         let n_chars = ascii_table.len();
         match self.compute_intersection(object, direction) {

@@ -1,5 +1,7 @@
-use super::*;
-use crate::math::*;
+// use super::*;
+// use crate::math::*;
+
+use crate::prelude::*;
 pub struct Union {
     objects: Vec<Box<dyn Object3D>>,
     center: Vector,

@@ -1,5 +1,6 @@
-use super::{Object3D, Orientable, OrientableMut, SDF_Centered};
-use crate::math::*;
+// use super::{Object3D, Orientable, OrientableMut, SDF_Centered};
+// use crate::math::*;
+use crate::prelude::*;
 pub struct Plane {
     /// `r0` is a point on the plane, and serves as its center
     r0: Vector,

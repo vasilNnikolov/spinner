@@ -1,5 +1,4 @@
-use super::{intersection::Intersection, plane::Plane, sphere::Sphere, union::Union, Object3D};
-use crate::math::*;
+use crate::prelude::*;
 
 pub struct PP {
     // center: Vector,

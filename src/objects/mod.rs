@@ -5,7 +5,7 @@ pub mod infinite_cylinder;
 pub mod sphere;
 pub mod union;
 
-use crate::math::*;
+use crate::prelude::*;
 
 /// every object, both simple and compound, should implement this trait in order to be movable and rotatable.
 pub trait OrientableMut {
