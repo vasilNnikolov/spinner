@@ -2,10 +2,23 @@ pub mod intersection;
 pub mod plane;
 // pub mod pp;
 pub mod infinite_cylinder;
+pub mod pp;
 pub mod sphere;
 pub mod union;
 
 use crate::prelude::*;
+
+#[allow(non_camel_case_types)]
+/// the SDF of the object when it is centered and its intrinsic axis coincide with the world
+/// axis. This has to be implemented on basic objects (i.e. not compound ones)
+pub trait SDF_Centered {
+    fn signed_distance_function_centered(&self, position: &Vector) -> f32;
+}
+
+pub trait Orientable {
+    fn get_center(&self) -> &Vector;
+    fn get_inverse_orientation_matrix(&self) -> &Matrix;
+}
 
 /// every object, both simple and compound, should implement this trait in order to be movable and rotatable.
 pub trait OrientableMut {
@@ -23,18 +36,6 @@ pub trait Movable: OrientableMut {
 }
 /// implement `Movable` for all structs that are `OrientableMut`
 impl<T> Movable for T where T: OrientableMut {}
-
-pub trait Orientable {
-    fn get_center(&self) -> &Vector;
-    fn get_inverse_orientation_matrix(&self) -> &Matrix;
-}
-
-#[allow(non_camel_case_types)]
-/// the SDF of the object when it is centered and its intrinsic axis coincide with the world
-/// axis. This has to be implemented on basic objects (i.e. not compound ones)
-pub trait SDF_Centered {
-    fn signed_distance_function_centered(&self, position: &Vector) -> f32;
-}
 
 // All objects, both single and compound, should implement this trait
 pub trait Object3D: SDF_Centered + Orientable + OrientableMut {

@@ -1,7 +1,3 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(non_snake_case)]
-
 mod constants;
 mod math;
 mod objects;
@@ -12,19 +8,19 @@ mod terminal;
 use prelude::*;
 use std::time;
 
-fn move_camera(camera: &mut Camera, start_time: &time::Instant) {
-    let time_ms = time::Instant::now().duration_since(*start_time).as_millis() as f32;
-    let phase = time_ms / 1500.0;
-    camera.position = vector!(
-        9.0 * phase.sin(),
-        7.0 * phase.cos(),
-        2.0 * (0.6 * phase).cos()
-    );
-    let column_1 = (-camera.position).normalise();
-    let column_0 = column_1.cross(&vector!(0, 0, 1)).normalise();
-    let column_2 = column_0.cross(&column_1);
-    camera.matrix = matrix_from_columns([column_0, column_1, column_2]);
-}
+// fn move_camera(camera: &mut Camera, start_time: &time::Instant) {
+//     let time_ms = time::Instant::now().duration_since(*start_time).as_millis() as f32;
+//     let phase = time_ms / 1500.0;
+//     camera.position = vector!(
+//         9.0 * phase.sin(),
+//         7.0 * phase.cos(),
+//         2.0 * (0.6 * phase).cos()
+//     );
+//     let column_1 = (-camera.position).normalise();
+//     let column_0 = column_1.cross(&vector!(0, 0, 1)).normalise();
+//     let column_2 = column_0.cross(&column_1);
+//     camera.matrix = matrix_from_columns([column_0, column_1, column_2]);
+// }
 
 fn define_scene() -> impl Object3D {
     let sphere_1 = sphere::Sphere::new(vector!(1, 0, 0), 2.0);
@@ -39,6 +35,10 @@ fn define_scene() -> impl Object3D {
             vector!(0, 1, 0),
         )),
     ])
+}
+
+fn define_scene_pp() -> impl Object3D {
+    pp::PP::default()
 }
 
 fn transform_scene(scene: &mut impl Object3D, program_start: &time::Instant) {
@@ -60,7 +60,7 @@ fn main() -> std::io::Result<()> {
     let camera = Camera::default();
     let mut screen_buffer = terminal::initialize_screen_buffer();
     // define the scene to be rendered
-    let mut object = define_scene();
+    let mut object = define_scene_pp();
     let program_start = time::Instant::now();
     terminal::clear_screen(&mut stdout)?;
     loop {
