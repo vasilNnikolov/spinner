@@ -3,6 +3,7 @@ pub mod infinite_cylinder;
 pub mod intersection;
 pub mod plane;
 pub mod pp;
+pub mod soft_union;
 pub mod sphere;
 pub mod union;
 

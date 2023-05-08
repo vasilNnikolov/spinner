@@ -3,7 +3,7 @@
 // use crate::objects;
 use crate::prelude::*;
 const MIN_DISTANCE: f32 = 0.003;
-const MAX_DISTANCE_FROM_CAMERA: f32 = 50.0;
+const MAX_DISTANCE_FROM_CAMERA: f32 = 250.0;
 
 pub struct Camera {
     /// camera position in outside world coordinates
