@@ -7,15 +7,10 @@ pub struct PP {
 impl PP {
     pub fn default() -> PP {
         PP {
-            components: Union::from_objects(vec![
-                Box::new(sphere::Sphere::new(vector!(-1, 0, 0), 2.0)),
-                Box::new(sphere::Sphere::new(vector!(1, 0, 0), 2.0)),
-                Box::new(cylinder::Cylinder::new(
-                    vector!(0, 0, 0),
-                    9.0,
-                    1.5,
-                    vector!(0, 0, 1),
-                )),
+            components: Union::from_objects(boxed_vec![
+                sphere::Sphere::new(vector!(-1, 0, 0), 2.0),
+                sphere::Sphere::new(vector!(1, 0, 0), 2.0),
+                cylinder::Cylinder::new(vector!(0, 0, 0), 9.0, 1.5, vector!(0, 0, 1),)
             ]),
         }
     }

@@ -1,5 +1,3 @@
-// use super::*;
-// use crate::math::*;
 use crate::prelude::*;
 pub struct InfiniteCylinder {
     center: Vector,

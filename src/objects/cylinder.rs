@@ -7,17 +7,10 @@ pub struct Cylinder {
 impl Cylinder {
     pub fn new(base_center: Vector, height: f32, radius: f32, shaft_axis: Vector) -> Cylinder {
         Cylinder {
-            components: Intersection::from_objects(vec![
-                Box::new(infinite_cylinder::InfiniteCylinder::new(
-                    base_center,
-                    radius,
-                    shaft_axis,
-                )),
-                Box::new(plane::Plane::new(base_center, -shaft_axis)),
-                Box::new(plane::Plane::new(
-                    base_center + height * shaft_axis,
-                    shaft_axis,
-                )),
+            components: Intersection::from_objects(boxed_vec![
+                infinite_cylinder::InfiniteCylinder::new(base_center, radius, shaft_axis),
+                plane::Plane::new(base_center, -shaft_axis),
+                plane::Plane::new(base_center + height * shaft_axis, shaft_axis,)
             ]),
         }
     }
