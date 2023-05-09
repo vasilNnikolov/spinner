@@ -4,16 +4,16 @@ use crate::prelude::*;
 /// edge
 pub struct SoftUnion {
     objects: Vec<Box<dyn Object3D>>,
-    smoothing_parameter: f32,
+    smu_epsilon: f32,
     center: Vector,
     inverse_orientation_matrix: Matrix,
 }
 
 impl SoftUnion {
-    pub fn from_objects(objects: Vec<Box<dyn Object3D>>, smoothing_parameter: f32) -> SoftUnion {
+    pub fn from_objects(objects: Vec<Box<dyn Object3D>>, smu_epsilon: f32) -> SoftUnion {
         SoftUnion {
             objects,
-            smoothing_parameter,
+            smu_epsilon,
             center: vector!(0, 0, 0),
             inverse_orientation_matrix: Matrix::identity(),
         }
@@ -39,8 +39,7 @@ impl OrientableMut for SoftUnion {
 
 impl SDF_Centered for SoftUnion {
     fn signed_distance_function_centered(&self, position: &Vector) -> f32 {
-        // find closest and second closest distances. If both are less than a set value, return the
-        // smallest distance plus some offset
+        // find closest and second closest distances. If both are less than a set value, return the softmim of the two
         let (best_distance, second_best_distance) = self
             .objects
             .iter()
@@ -60,6 +59,14 @@ impl SDF_Centered for SoftUnion {
                     (best_local, second_best_local)
                 },
             );
-        best_distance - self.smoothing_parameter / second_best_distance
+        if best_distance < 0.0 {
+            return best_distance;
+        }
+        /// smooth maximum unit [wiki article](https://en.wikipedia.org/wiki/Smooth_maximum#Smooth_maximum_unit)
+        #[inline]
+        fn smu(a: f32, b: f32, epsilon: f32) -> f32 {
+            (a + b + ((a - b).powi(2) + epsilon).sqrt()) / 2.
+        }
+        -smu(-best_distance, -second_best_distance, self.smu_epsilon)
     }
 }
