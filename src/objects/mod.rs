@@ -6,6 +6,7 @@ pub mod pp;
 pub mod soft_union;
 pub mod sphere;
 pub mod union;
+pub mod utility_functions;
 
 use crate::prelude::*;
 
