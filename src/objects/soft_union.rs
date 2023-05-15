@@ -43,9 +43,6 @@ impl SDF_Centered for SoftUnion {
         // find closest and second closest distances. If both are less than a set value, return the softmim of the two
         let (best_distance, second_best_distance) =
             utility_functions::best_two_distances(&self.objects, position, true);
-        // if best_distance < 0.0 {
-        //     return best_distance;
-        // }
         -utility_functions::smooth_maximum_unit(
             -best_distance,
             -second_best_distance,

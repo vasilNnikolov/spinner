@@ -42,8 +42,8 @@ fn transform_scene(scene: &mut impl Object3D, program_start: &time::Instant) {
         .duration_since(*program_start)
         .as_millis() as f32;
     let phase = (time_since_start_ms) / 1000.0;
-    let dx = 0.02 * phase.cos();
-    scene.move_object(&vector!(-dx, 0, dx));
+    let dx = 0.8 * phase.cos();
+    scene.move_object(&vector!(0, dx, 0.2 * dx));
     scene.set_orientation_matrix(&matrix_from_columns([
         vector!(phase.cos(), phase.sin(), 0),
         vector!(-phase.sin(), phase.cos(), 0),
