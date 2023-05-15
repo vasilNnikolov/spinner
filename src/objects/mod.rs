@@ -1,13 +1,11 @@
 pub mod cylinder;
 pub mod infinite_cylinder;
 pub mod intersection;
+pub mod operations;
 pub mod plane;
 pub mod pp;
-pub mod soft_intersection;
-pub mod soft_union;
 pub mod sphere;
 pub mod union;
-pub mod utility_functions;
 
 use crate::prelude::*;
 

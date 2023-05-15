@@ -1,3 +1,4 @@
+use super::utility_functions;
 use crate::prelude::*;
 pub struct SoftIntersection {
     objects: Vec<Box<dyn Object3D>>,
