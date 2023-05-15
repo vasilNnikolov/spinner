@@ -1,5 +1,3 @@
-// use super::*;
-// use crate::math::*;
 use crate::prelude::*;
 pub struct Intersection {
     objects: Vec<Box<dyn Object3D>>,

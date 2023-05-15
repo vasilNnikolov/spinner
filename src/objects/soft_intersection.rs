@@ -1,18 +1,14 @@
-use super::utility_functions;
 use crate::prelude::*;
-
-/// Close to the boundary of two objects, it blends them together nicely instead of having a sharp
-/// edge
-pub struct SoftUnion {
+pub struct SoftIntersection {
     objects: Vec<Box<dyn Object3D>>,
     center: Vector,
     inverse_orientation_matrix: Matrix,
     smu_epsilon: f32,
 }
 
-impl SoftUnion {
-    pub fn from_objects(objects: Vec<Box<dyn Object3D>>, smu_epsilon: f32) -> SoftUnion {
-        SoftUnion {
+impl SoftIntersection {
+    pub fn from_objects(objects: Vec<Box<dyn Object3D>>, smu_epsilon: f32) -> SoftIntersection {
+        SoftIntersection {
             objects,
             center: vector!(0, 0, 0),
             inverse_orientation_matrix: Matrix::identity(),
@@ -21,7 +17,7 @@ impl SoftUnion {
     }
 }
 
-impl Orientable for SoftUnion {
+impl Orientable for SoftIntersection {
     fn get_center(&self) -> &Vector {
         &self.center
     }
@@ -29,7 +25,7 @@ impl Orientable for SoftUnion {
         &self.inverse_orientation_matrix
     }
 }
-impl OrientableMut for SoftUnion {
+impl OrientableMut for SoftIntersection {
     fn get_center_mut(&mut self) -> &mut Vector {
         &mut self.center
     }
@@ -38,17 +34,13 @@ impl OrientableMut for SoftUnion {
     }
 }
 
-impl SDF_Centered for SoftUnion {
+impl SDF_Centered for SoftIntersection {
     fn signed_distance_function_centered(&self, position: &Vector) -> f32 {
-        // find closest and second closest distances. If both are less than a set value, return the softmim of the two
         let (best_distance, second_best_distance) =
-            utility_functions::best_two_distances(&self.objects, position, true);
-        // if best_distance < 0.0 {
-        //     return best_distance;
-        // }
-        -utility_functions::smooth_maximum_unit(
-            -best_distance,
-            -second_best_distance,
+            utility_functions::best_two_distances(&self.objects, position, false);
+        utility_functions::smooth_maximum_unit(
+            best_distance,
+            second_best_distance,
             self.smu_epsilon,
         )
     }

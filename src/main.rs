@@ -57,7 +57,7 @@ fn main() -> std::io::Result<()> {
     let mut screen_buffer = terminal::initialize_screen_buffer();
     // define the scene to be rendered
     // let mut object = define_scene_pp();
-    let mut object = define_scene();
+    let mut object = define_scene_pp();
     let program_start = time::Instant::now();
     terminal::clear_screen(&mut stdout)?;
     loop {

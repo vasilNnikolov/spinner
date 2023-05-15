@@ -1,22 +1,28 @@
 use crate::prelude::*;
 
 pub struct PP {
-    components: Union,
+    components: SoftUnion,
 }
 
 impl PP {
     pub fn default() -> PP {
         PP {
-            components: Union::from_objects(boxed_vec![
-                sphere::Sphere::new(vector!(-1, 0, 0), 2.0),
-                sphere::Sphere::new(vector!(1, 0, 0), 2.0),
-                cylinder::Cylinder::new(vector!(0, 0, 0), 9.0, 1.5, vector!(0, 0, 1),),
-                //head
-                Intersection::from_objects(boxed_vec![
-                    sphere::Sphere::new(9.0 * vector!(0, 0, 1), 2.0),
-                    plane::Plane::new(9.0 * vector!(0, 0, 1), vector!(0, 0, -1))
-                ])
-            ]),
+            components: SoftUnion::from_objects(
+                boxed_vec![
+                    sphere::Sphere::new(vector!(-1, 0, 0), 2.),
+                    sphere::Sphere::new(vector!(1, 0, 0), 2.),
+                    cylinder::Cylinder::new(vector!(0, 0, 0), 9., 1.5, vector!(0, 0, 1),),
+                    //head
+                    SoftIntersection::from_objects(
+                        boxed_vec![
+                            sphere::Sphere::new(9. * vector!(0, 0, 1), 2.),
+                            plane::Plane::new(9. * vector!(0, 0, 1), vector!(0, 0, -1))
+                        ],
+                        0.1
+                    )
+                ],
+                0.04,
+            ),
         }
     }
 }

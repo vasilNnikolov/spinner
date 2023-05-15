@@ -5,10 +5,20 @@ pub fn smooth_maximum_unit(a: f32, b: f32, epsilon: f32) -> f32 {
     (a + b + ((a - b).powi(2) + epsilon).sqrt()) / 2.
 }
 
-pub fn best_two_distances(objects: &Vec<Box<dyn Object3D>>, position: &Vector) -> (f32, f32) {
+pub fn best_two_distances(
+    objects: &Vec<Box<dyn Object3D>>,
+    position: &Vector,
+    looking_for_min: bool,
+) -> (f32, f32) {
     let (best_distance, second_best_distance) = objects
         .iter()
-        .map(|obj| obj.signed_distance_function(position))
+        .map(|obj| {
+            if looking_for_min {
+                obj.signed_distance_function(position)
+            } else {
+                -obj.signed_distance_function(position)
+            }
+        })
         .fold(
             (f32::MAX, f32::MAX),
             |(best, second_best), current_distance| {
@@ -24,5 +34,9 @@ pub fn best_two_distances(objects: &Vec<Box<dyn Object3D>>, position: &Vector) -
                 (best_local, second_best_local)
             },
         );
-    (best_distance, second_best_distance)
+    if looking_for_min {
+        return (best_distance, second_best_distance);
+    } else {
+        (-best_distance, -second_best_distance)
+    }
 }
