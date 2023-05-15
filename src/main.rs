@@ -42,8 +42,8 @@ fn transform_scene(scene: &mut impl Object3D, program_start: &time::Instant) {
         .duration_since(*program_start)
         .as_millis() as f32;
     let phase = (time_since_start_ms) / 1000.0;
-    let dx = 0.8 * phase.cos();
-    scene.move_object(&vector!(0, dx, 0.2 * dx));
+    let dx = 0.7 * phase.cos();
+    scene.move_object(&vector!(0, dx, -0.2 * dx));
     scene.set_orientation_matrix(&matrix_from_columns([
         vector!(phase.cos(), phase.sin(), 0),
         vector!(-phase.sin(), phase.cos(), 0),
@@ -57,7 +57,7 @@ fn main() -> std::io::Result<()> {
     let mut screen_buffer = terminal::initialize_screen_buffer();
     // define the scene to be rendered
     // let mut object = define_scene_pp();
-    let mut object = define_scene_pp();
+    let mut object = define_scene();
     let program_start = time::Instant::now();
     terminal::clear_screen(&mut stdout)?;
     loop {
