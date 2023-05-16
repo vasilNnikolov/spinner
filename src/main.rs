@@ -11,7 +11,7 @@ use std::time;
 fn define_scene() -> impl Object3D {
     let sphere_1 = sphere::Sphere::new(vector!(1, 0, 0), 2.0);
     let sphere_2 = sphere::Sphere::new(vector!(-1, 0, 0), 2.0);
-    let balls = SoftUnion::from_objects(vec![Box::new(sphere_1), Box::new(sphere_2)], 0.01);
+    let balls = SoftUnion::from_objects_default(vec![Box::new(sphere_1), Box::new(sphere_2)]);
     let mut int = Intersection::from_objects(boxed_vec![
         balls,
         plane::Plane::new(vector!(0, 0, 0), vector!(0, 0, 1)),
@@ -57,7 +57,7 @@ fn main() -> std::io::Result<()> {
     let mut screen_buffer = terminal::initialize_screen_buffer();
     // define the scene to be rendered
     // let mut object = define_scene_pp();
-    let mut object = define_scene();
+    let mut object = define_scene_pp();
     let program_start = time::Instant::now();
     terminal::clear_screen(&mut stdout)?;
     loop {
