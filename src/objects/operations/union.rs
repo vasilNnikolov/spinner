@@ -41,3 +41,9 @@ impl SDF_Centered for Union {
             .unwrap()
     }
 }
+
+impl ObjectOperation for Intersection {
+    fn from_objects_default(objects: Vec<Box<dyn Object3D>>) -> Intersection {
+        Intersection::from_objects(objects)
+    }
+}

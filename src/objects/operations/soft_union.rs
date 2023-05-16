@@ -50,3 +50,8 @@ impl SDF_Centered for SoftUnion {
         )
     }
 }
+impl ObjectOperation for SoftUnion {
+    fn from_objects_default(objects: Vec<Box<dyn Object3D>>) -> SoftUnion {
+        SoftIntersection::from_objects(objects, 0.05)
+    }
+}

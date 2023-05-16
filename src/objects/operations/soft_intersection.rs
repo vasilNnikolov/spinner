@@ -46,3 +46,9 @@ impl SDF_Centered for SoftIntersection {
         )
     }
 }
+
+impl ObjectOperation for SoftIntersection {
+    fn from_objects_default(objects: Vec<Box<dyn Object3D>>) -> SoftIntersection {
+        SoftIntersection::from_objects(objects, 0.05)
+    }
+}

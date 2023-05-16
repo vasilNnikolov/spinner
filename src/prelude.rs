@@ -2,7 +2,10 @@ pub use crate::constants::*;
 pub use crate::math::*;
 pub use crate::objects::{
     intersection::Intersection,
-    operations::{soft_intersection::SoftIntersection, soft_union::SoftUnion},
+    operations::{
+        intersection::Intersection, soft_intersection::SoftIntersection, soft_union::SoftUnion,
+        union::Union,
+    },
     union::Union,
     *,
 };
