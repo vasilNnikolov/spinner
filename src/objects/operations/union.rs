@@ -1,4 +1,5 @@
 use crate::prelude::*;
+
 pub struct Union {
     objects: Vec<Box<dyn Object3D>>,
     center: Vector,
@@ -42,8 +43,8 @@ impl SDF_Centered for Union {
     }
 }
 
-impl ObjectOperation for Intersection {
-    fn from_objects_default(objects: Vec<Box<dyn Object3D>>) -> Intersection {
-        Intersection::from_objects(objects)
+impl ObjectOperation for Union {
+    fn from_objects_default(objects: Vec<Box<dyn Object3D>>) -> Union {
+        Union::from_objects(objects)
     }
 }

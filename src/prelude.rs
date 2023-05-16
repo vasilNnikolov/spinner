@@ -1,12 +1,10 @@
 pub use crate::constants::*;
 pub use crate::math::*;
 pub use crate::objects::{
-    intersection::Intersection,
     operations::{
         intersection::Intersection, soft_intersection::SoftIntersection, soft_union::SoftUnion,
-        union::Union,
+        union::Union, ObjectOperation,
     },
-    union::Union,
     *,
 };
 pub use crate::scene::*;

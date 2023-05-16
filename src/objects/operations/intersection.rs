@@ -1,4 +1,5 @@
 use crate::prelude::*;
+
 pub struct Intersection {
     objects: Vec<Box<dyn Object3D>>,
     center: Vector,
