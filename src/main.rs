@@ -9,17 +9,15 @@ use prelude::*;
 use std::time;
 
 fn define_scene() -> impl Object3D {
-    // let sphere_1 = sphere::Sphere::new(vector!(1, 0, 0), 2.0);
-    // let sphere_2 = sphere::Sphere::new(vector!(-1, 0, 0), 2.0);
-    // let balls = SoftUnion::from_objects_default(vec![Box::new(sphere_1), Box::new(sphere_2)]);
-    // let mut int = SoftIntersection::from_objects_default(boxed_vec![
-    //     balls,
-    //     plane::Plane::new(vector!(0, 0, 0), vector!(0, 0, 1)),
-    //     infinite_cylinder::InfiniteCylinder::new(vector!(1, 0, 0), 1.8, vector!(0, 1, 0),)
-    // ]);
-    // // int.set_orientation_matrix(&(2.0 * Matrix::identity()));
-    // int
-    pp::PP::default()
+    let sphere_1 = sphere::Sphere::new(vector!(1, 0, 0), 2.0);
+    let sphere_2 = sphere::Sphere::new(vector!(-1, 0, 0), 2.0);
+    let balls = SoftUnion::from_objects_default(vec![Box::new(sphere_1), Box::new(sphere_2)]);
+    let int = SoftIntersection::from_objects_default(boxed_vec![
+        balls,
+        plane::Plane::new(vector!(0, 0, 0), vector!(0, 0, 1)),
+        infinite_cylinder::InfiniteCylinder::new(vector!(1, 0, 0), 1.8, vector!(0, 1, 0),)
+    ]);
+    int
 }
 
 fn define_scene_cuboid() -> impl Object3D {
@@ -50,12 +48,26 @@ fn transform_scene(scene: &mut impl Object3D, program_start: &time::Instant) {
     ]));
 }
 
+pub trait SolidBody {
+    fn get_principal_moment_of_inertia(&self) -> &Matrix;
+}
+
+/// simulates the rotation of a body after time `dt`, as documented in the `README.md`
+fn simulate_solid_body_rotation(
+    body: &mut (impl SolidBody + Object3D),
+    angular_momentum: &Vector,
+    energy: f32,
+    dt: f32,
+) -> f32 {
+    0.
+}
+
 fn main() -> std::io::Result<()> {
     let mut stdout = std::io::stdout();
     let camera = Camera::default();
     let mut screen_buffer = terminal::initialize_screen_buffer();
     // define the scene to be rendered
-    let mut object = define_scene();
+    let mut object = define_scene_cuboid();
     let program_start = time::Instant::now();
     terminal::clear_screen(&mut stdout)?;
     loop {
