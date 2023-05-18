@@ -1,9 +1,8 @@
-pub mod cuboid;
+pub mod compound_objects;
 pub mod cylinder;
 pub mod infinite_cylinder;
 pub mod operations;
 pub mod plane;
-pub mod pp;
 pub mod sphere;
 
 use crate::prelude::*;

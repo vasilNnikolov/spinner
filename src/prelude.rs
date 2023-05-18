@@ -1,6 +1,7 @@
 pub use crate::constants::*;
 pub use crate::math::*;
 pub use crate::objects::{
+    compound_objects::*,
     operations::{
         intersection::Intersection, soft_intersection::SoftIntersection, soft_union::SoftUnion,
         union::Union, ObjectOperation,
@@ -16,12 +17,12 @@ macro_rules! boxed_vec {
 }
 pub(crate) use boxed_vec;
 
-pub fn UNIT_X() -> Vector {
+pub fn unit_x() -> Vector {
     vector!(1, 0, 0)
 }
-pub fn UNIT_Y() -> Vector {
+pub fn unit_y() -> Vector {
     vector!(0, 1, 0)
 }
-pub fn UNIT_Z() -> Vector {
+pub fn unit_z() -> Vector {
     vector!(0, 0, 1)
 }
