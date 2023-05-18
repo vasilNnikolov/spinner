@@ -15,3 +15,13 @@ macro_rules! boxed_vec {
     }
 }
 pub(crate) use boxed_vec;
+
+pub fn UNIT_X() -> Vector {
+    vector!(1, 0, 0)
+}
+pub fn UNIT_Y() -> Vector {
+    vector!(0, 1, 0)
+}
+pub fn UNIT_Z() -> Vector {
+    vector!(0, 0, 1)
+}

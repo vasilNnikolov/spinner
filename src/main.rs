@@ -21,10 +21,8 @@ fn define_scene() -> impl Object3D {
     int
 }
 
-fn define_scene_pp() -> impl Object3D {
-    let mut pp = pp::PP::default();
-    pp.move_object(&vector!(0, 19, -5));
-    pp
+fn define_scene_cuboid() -> impl Object3D {
+    cuboid::Cuboid::new(1., 2., 3.)
 }
 
 fn define_scene_planes() -> impl Object3D {
@@ -56,7 +54,7 @@ fn main() -> std::io::Result<()> {
     let camera = Camera::default();
     let mut screen_buffer = terminal::initialize_screen_buffer();
     // define the scene to be rendered
-    let mut object = define_scene();
+    let mut object = define_scene_cuboid();
     let program_start = time::Instant::now();
     terminal::clear_screen(&mut stdout)?;
     loop {

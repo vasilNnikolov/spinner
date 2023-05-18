@@ -1,3 +1,4 @@
+pub mod cuboid;
 pub mod cylinder;
 pub mod infinite_cylinder;
 pub mod operations;
