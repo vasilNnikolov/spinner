@@ -20,8 +20,10 @@ fn define_scene() -> impl Object3D {
     int
 }
 
-fn define_scene_cuboid() -> impl Object3D {
-    cuboid::Cuboid::new(1., 2., 3.)
+fn define_scene_cuboid() -> cuboid::Cuboid {
+    let mut cube = cuboid::Cuboid::new(1., 2., 3.);
+    cube.move_object(&vector!(2, 0, 0));
+    cube
 }
 
 fn define_scene_planes() -> impl Object3D {
@@ -48,18 +50,46 @@ fn transform_scene(scene: &mut impl Object3D, program_start: &time::Instant) {
     ]));
 }
 
-pub trait SolidBody {
-    fn get_principal_moment_of_inertia(&self) -> &Matrix;
+#[allow(non_snake_case)]
+pub trait SolidBody: OrientableMut + Orientable {
+    fn get_moment_of_inertia(&self) -> Matrix;
+
+    fn get_current_moment_of_inertia(&self) -> Matrix {
+        let I_0 = self.get_moment_of_inertia();
+        let R_inv = self.get_inverse_orientation_matrix();
+        let R = R_inv.try_inverse().unwrap();
+        R * I_0 * R_inv
+    }
+    fn compute_energy_of_rotation(&self, angular_momentum: &Vector) -> f32 {
+        let I = self.get_current_moment_of_inertia();
+        (angular_momentum.transpose() * (I.try_inverse().unwrap()) * angular_momentum).trace()
+    }
+    fn propagate_rotation(&mut self, angular_momentum: &Vector, energy: f32, dt: f32) {
+        let I = self.get_current_moment_of_inertia();
+        let mut R = self.get_inverse_orientation_matrix().try_inverse().unwrap();
+        let mut omega = I.try_inverse().unwrap() * angular_momentum;
+        // make sure omega meets the energy requirement
+        let current_energy = (omega.transpose() * I * omega).trace();
+        omega /= (current_energy / energy).powf(0.5);
+        let R_dot = omega.cross_matrix() * R;
+        R += dt * R_dot;
+        // perform Gram Schmidt orthogonalization
+        *(self.get_inverse_orientation_matrix_mut()) = R.try_inverse().unwrap();
+    }
 }
 
-/// simulates the rotation of a body after time `dt`, as documented in the `README.md`
-fn simulate_solid_body_rotation(
-    body: &mut (impl SolidBody + Object3D),
-    angular_momentum: &Vector,
-    energy: f32,
-    dt: f32,
-) -> f32 {
-    0.
+impl SolidBody for cuboid::Cuboid {
+    /// gets the moment of inertia of a body when its rotation matrix is the identity matrix. If it
+    /// is different, the new moment of inertia is `R*I*R^{-1}` where `I` is the moment returned by
+    /// this function
+    fn get_moment_of_inertia(&self) -> Matrix {
+        let (a, b, c) = (self.side_a, self.side_b, self.side_c);
+        matrix_from_columns([
+            vector!(b * b + c * c, 0, 0),
+            vector!(0, a * a + c * c, 0),
+            vector!(0, 0, a * a + b * b),
+        ]) / 12.
+    }
 }
 
 fn main() -> std::io::Result<()> {
@@ -70,11 +100,18 @@ fn main() -> std::io::Result<()> {
     let mut object = define_scene_cuboid();
     let program_start = time::Instant::now();
     terminal::clear_screen(&mut stdout)?;
+    let angular_momentum = vector!(0, 3, 0.01);
     loop {
         let frame_start_time = time::Instant::now();
 
         // movement of the scene
-        transform_scene(&mut object, &program_start);
+        // transform_scene(&mut object, &program_start);
+
+        object.propagate_rotation(
+            &angular_momentum,
+            object.compute_energy_of_rotation(&angular_momentum),
+            0.01,
+        );
 
         // compute the light intensities for each pixel
         for row in 1..HEIGHT - 1 {

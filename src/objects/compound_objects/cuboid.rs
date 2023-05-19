@@ -2,6 +2,9 @@ use crate::prelude::*;
 
 pub struct Cuboid {
     components: SoftIntersection,
+    pub side_a: f32,
+    pub side_b: f32,
+    pub side_c: f32,
 }
 
 impl Cuboid {
@@ -12,6 +15,9 @@ impl Cuboid {
             .unwrap()
             / 100.;
         Cuboid {
+            side_a,
+            side_b,
+            side_c,
             components: SoftIntersection::from_objects(
                 boxed_vec![
                     plane::Plane::new(-side_a / 2. * unit_x(), -unit_x()),
