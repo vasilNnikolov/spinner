@@ -24,7 +24,7 @@ pub(crate) use vector;
 
 pub type Matrix = nalgebra::SMatrix<f32, 3, 3>;
 
-pub fn proj(u: &Vector, v: &Vector) -> Vector {
+fn proj(u: &Vector, v: &Vector) -> Vector {
     u.dot(v) / u.dot(u) * u
 }
 /// turns the input matrix into an orthogonal one, while keeping the direction of the first
