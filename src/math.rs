@@ -92,13 +92,13 @@ mod test_math {
         println!("{:?}", gso);
         assert!(gso == Matrix::identity());
 
-        let gso = gram_schmidt_orthogonalization(&(2. * Matrix::identity()), 0);
+        let gso = gram_schmidt_orthogonalization(&(2. * Matrix::identity()), 1);
         println!("{:?}", gso);
         assert!(gso == Matrix::identity());
 
         let gso = gram_schmidt_orthogonalization(
             &(matrix_from_columns([vector!(1, 1, 1), vector!(2, 1, -4), vector!(0, 1, 0)])),
-            0,
+            2,
         );
         println!("{:?}", gso);
     }
