@@ -73,14 +73,23 @@ fn main() -> std::io::Result<()> {
     let mut object = define_scene_cuboid();
     let program_start = time::Instant::now();
     terminal::clear_screen(&mut stdout)?;
-    let angular_momentum = vector!(0, 3, 0.001);
+    let angular_momentum = vector!(0, 3, 0.01);
     let energy = object.compute_energy_of_rotation(&angular_momentum);
     let mut index_for_gso = 0;
+    let fps = 50;
+    let propagation_iterations_per_frame = 10000;
     loop {
         let frame_start_time = time::Instant::now();
 
-        object.propagate_rotation(&angular_momentum, energy, 0.02, index_for_gso);
-        index_for_gso = (index_for_gso + 1) % 3;
+        for _ in 0..propagation_iterations_per_frame {
+            object.propagate_rotation(
+                &angular_momentum,
+                energy,
+                1. / (fps * propagation_iterations_per_frame) as f32,
+                index_for_gso,
+            );
+            index_for_gso = (index_for_gso + 1) % 3;
+        }
 
         // compute the light intensities for each pixel
         for row in 1..HEIGHT - 1 {
@@ -111,6 +120,6 @@ fn main() -> std::io::Result<()> {
                 end_of_render.elapsed().as_millis()
             ),
         )?;
-        terminal::fps_cap(60, &frame_start_time);
+        terminal::fps_cap(fps, &frame_start_time);
     }
 }
